@@ -114,3 +114,9 @@
 
 ## [🏗️ System Architecture](md/sa.md)
 > Overview of Cubit/Bloc layers, data structures, and project layout.
+
+## [✨ New Features & Integration](md/new_features.md)
+> How Rive animations and just_audio integrate with Cubit, UI, and combat.
+
+## [🎬 Feature Flow Diagram](md/sa_diagram.md)
+> Visual Mermaid diagram of the game flow including new features.
