@@ -1,8 +1,10 @@
 import 'package:camt_terminator/models/card.dart';
 
 class Player {
-  int hp = 50;
-  List<GameCard> hand = [];
-  List<GameCard> deck = [];
+  num hp = 50;
+  List<Card> hand = [];
+  List<Card> deck = [];
+
+  num get maxHp => 50;
   // etc.
 }
