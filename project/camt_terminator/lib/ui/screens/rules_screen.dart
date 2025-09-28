@@ -1,3 +1,4 @@
+// project\camt_terminator\lib\ui\screens\rules_screen.dart
 import 'package:flutter/material.dart';
 
 class RulesScreen extends StatelessWidget {

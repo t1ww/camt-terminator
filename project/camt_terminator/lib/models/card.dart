@@ -1,3 +1,4 @@
+// project\camt_terminator\lib\models\card.dart
 import 'package:camt_terminator/models/player_model.dart';
 
 abstract class Card {

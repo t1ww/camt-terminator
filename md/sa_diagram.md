@@ -14,7 +14,7 @@ flowchart LR
         direction TB
         ScreenCubit[UIScreenCubit]
         MainMenu[Main Menu Screen]
-        GameScreen[Game Screen]
+        MenuScreen[Menu Screen]
         CombatScreen[Combat Screen]
         GameOverScreen[Game Over Screen]
     end
@@ -52,12 +52,12 @@ flowchart LR
 
     %% Connections
     ScreenCubit --> MainMenu
-    ScreenCubit --> GameScreen
+    ScreenCubit --> MenuScreen
     ScreenCubit --> CombatScreen
     ScreenCubit --> GameOverScreen
 
     MainMenu --> ButtonWidget
-    GameScreen --> UI
+    MenuScreen --> UI
     CombatScreen --> UI
     GameOverScreen --> UI
 

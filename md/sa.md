@@ -14,8 +14,11 @@ CAMT_Terminator/
 │  │
 │  ├─ ui/
 │  │  ├─ screens/
-│  │  │  ├─ game_screen.dart
+│  │  │  ├─ menu_screen.dart
 │  │  │  └─ combat_screen.dart
+│  │  │  └─ gameover_screen.dart
+│  │  │  └─ rules_screen.dart
+│  │  │  └─ dev_screen.dart <-------- # Entry point
 │  │  └─ widgets/
 │  │     ├─ card_widget.dart
 │  │     ├─ hp_bar.dart
