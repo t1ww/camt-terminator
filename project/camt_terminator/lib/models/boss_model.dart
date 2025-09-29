@@ -1,6 +1,6 @@
 // project\camt_terminator\lib\models\boss_model.dart
 import 'package:camt_terminator/models/card_model.dart';
-import 'package:camt_terminator/models/decl_model.dart';
+import 'package:camt_terminator/models/deck_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
 
 class Boss {
