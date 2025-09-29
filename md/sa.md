@@ -1,50 +1,52 @@
-# CAMT Terminator - System Architecture & Project Structure
+# CAMT Terminator – Project Structure & File Responsibilities
 
-This document describes the **project structure**, **data layer**, and **Cubit/Bloc architecture** for CAMT Terminator.
+This document outlines the **project structure** and the role of each file in the CAMT Terminator game. The architecture follows a **clean separation** between UI, models, services, and data.
 
 ---
 
 ## Project Resource Tree
 
 ```
-CAMT_Terminator/
+
+camt_terminator/
 │
 ├─ lib/
-│  ├─ main.dart <-------------------- # Entry point
+│  ├─ main.dart                  # App entry point, route configuration
 │  │
 │  ├─ ui/
 │  │  ├─ screens/
-│  │  │  ├─ menu_screen.dart
-│  │  │  └─ combat_screen.dart
-│  │  │  └─ gameover_screen.dart
-│  │  │  └─ rules_screen.dart
-│  │  │  └─ dev_screen.dart <-------- # Entry point
+│  │  │  ├─ menu_screen.dart     # Main menu (start, rules, exit)
+│  │  │  ├─ combat_screen.dart   # Core battle screen
+│  │  │  ├─ gameover_screen.dart # Shown when player loses/wins
+│  │  │  ├─ rules_screen.dart    # Game instructions
+│  │  │  └─ dev_screen.dart      # Debug/dev testing entry
 │  │  └─ widgets/
-│  │     ├─ card_widget.dart
-│  │     ├─ hp_bar.dart
-│  │     └─ consumable_widget.dart
+│  │     ├─ card_widget.dart     # Card display component
+│  │     ├─ hp_bar.dart          # Player/boss HP bar widget
+│  │     └─ consumable_widget.dart # Consumable (heal/dmg) display
 │  │
 │  ├─ cubit/
-│  │  ├─ game_cubit.dart
-│  │  └─ card_cubit.dart
+│  │  ├─ game_cubit.dart         # Manages turn flow & game states
+│  │  └─ card_cubit.dart         # Handles deck, draw, discard
 │  │
 │  ├─ models/
-│  │  ├─ card.dart <------------------ # Base Card + AttackCard, DefenseCard, ConsumableCard
-│  │  ├─ player_model.dart
-│  │  └─ boss_model.dart
+│  │  ├─ card.dart               # Base Card, AttackCard, DefenseCard, ConsumableCard
+│  │  ├─ deck.dart               # Deck + discard pile, shuffle/draw logic
+│  │  ├─ player_model.dart       # Player state: HP, hand, deck
+│  │  └─ boss_model.dart         # Boss state: HP, ability, AI draw
 │  │
 │  ├─ services/
-│  │  └─ combat_resolver.dart <------- # Resolves combat logic
+│  │  └─ combat_resolver.dart    # Resolves battle results (Atk/Def/Nullify)
 │  │
 │  └─ data/
-│     ├─ deck_data.dart <------------- # Contains deck initialization, shuffle, draw, discard
-│     └─ boss_data.dart <------------- # Contains all boss definitions and abilities
+│     ├─ deck_data.dart          # Deck initialization, card pools
+│     └─ boss_data.dart          # Boss definitions, stats, abilities
 │
 ├─ assets/
 │  ├─ images/
-│  │  ├─ cards/
-│  │  └─ bosses/
-│  └─ sounds/
+│  │  ├─ cards/                  # Card sprites
+│  │  └─ bosses/                 # Boss sprites
+│  └─ sounds/                    # SFX: attack, heal, etc.
 │
 └─ README.md
 
@@ -52,259 +54,132 @@ CAMT_Terminator/
 
 ---
 
-## Data Layer
+## File Responsibilities
 
-The **data layer** centralizes all game data, keeping the game logic, UI, and state management separate and organized.
-
-* **deck_data.dart**
-
-  * Contains the full deck composition (Atk, Def, and Consumable cards)
-  * Handles shuffle, draw, discard, and reset logic
-  * Consumable cards are only available to the player
-
-* **boss_data.dart**
-
-  * Contains all boss definitions, including HP, weapons, abilities
-  * Can include AI parameters like attack patterns
-
-**Benefits:**
-
-* Easy to modify decks, bosses, and consumables without touching game logic
-* Makes testing simpler
-* Clean separation for UI/Cubit
+### **lib/main.dart**
+- Entry point of the Flutter app.  
+- Sets up routes (`/menu`, `/game`, `/rules`, `/gameover`, `/dev`).  
+- Configures global app theme.  
 
 ---
 
-### **card.dart**
-
-```dart
-abstract class Card {
-  final String id;       // Unique identifier
-  final String name;     // e.g., "Atk 2", "Shotgun"
-  
-  Card({required this.id, required this.name});
-}
-
-class AttackCard extends Card {
-  final int power;
-
-  AttackCard({required String id, required String name, required this.power})
-      : super(id: id, name: name);
-}
-
-class DefenseCard extends Card {
-  final int power;
-
-  DefenseCard({required String id, required String name, required this.power})
-      : super(id: id, name: name);
-}
-
-class ConsumableCard extends Card {
-  final String type;    // 'Heal' or 'Damage'
-  final int effectValue;
-  int quantity;
-
-  ConsumableCard({
-    required String id,
-    required String name,
-    required this.type,
-    required this.effectValue,
-    this.quantity = 1,
-  }) : super(id: id, name: name);
-
-  bool isAvailable() => quantity > 0;
-
-  void use(Player player) {
-    if (quantity <= 0) return;
-
-    if (type == 'Heal') {
-      player.hp += effectValue;
-      if (player.hp > player.maxHp) player.hp = player.maxHp;
-    }
-    // For 'Damage' type, handled in CombatResolver
-
-    quantity -= 1;
-  }
-}
-```
+### **lib/models/card.dart**
+- Defines the **base Card class** and three subclasses:
+  - `AttackCard`: Has attack power.  
+  - `DefenseCard`: Has defense power.  
+  - `ConsumableCard`: Has type (`Heal` or `Damage`), effect value, and quantity.  
+- `ConsumableCard.use()` applies healing directly to `Player`; damage type is resolved in `CombatResolver`.  
 
 ---
 
-### **deck.dart**
-
-```dart
-class Deck {
-  List<Card> cards = [];
-  List<Card> discardPile = [];
-
-  Deck({required this.cards});
-
-  int totalCards() => cards.length;
-
-  void shuffle() {
-    cards.shuffle();
-  }
-
-  List<Card> draw(int count, {bool includeConsumables = true}) {
-    List<Card> drawPool = includeConsumables
-        ? cards
-        : cards.where((c) => c is! ConsumableCard).toList();
-
-    final drawn = drawPool.take(count).toList();
-    for (var card in drawn) {
-      cards.remove(card);
-    }
-    return drawn;
-  }
-
-  void discard(List<Card> usedCards) {
-    discardPile.addAll(usedCards);
-  }
-
-  void resetDeck() {
-    cards.addAll(discardPile);
-    discardPile.clear();
-    shuffle();
-  }
-}
-```
-
-**Notes:**
-
-* Consumable cards are now part of the deck, but bosses ignore them.
-* Cards can include extra fields like `description` or `imagePath` for UI.
+### **lib/models/deck.dart**
+- Represents the deck system for both player and bosses.  
+- Tracks:  
+  - `cards`: active draw pile.  
+  - `discardPile`: used cards.  
+- Provides:  
+  - `shuffle()`  
+  - `draw(count, includeConsumables)`  
+  - `discard()`  
+  - `resetDeck()`  
 
 ---
 
-### **boss_data.dart**
-
-```dart
-class Boss {
-  final String id;
-  final String name;
-  int hp;
-  final int maxHp;
-  final String weapon;
-  final String ability;
-  final int abilityPower;       // Optional numeric parameter
-  final int maxCardsPerTurn;    // e.g., Party plays 4 cards
-  List<Card> currentHand = [];
-
-  Boss({
-    required this.id,
-    required this.name,
-    required this.hp,
-    required this.maxHp,
-    required this.weapon,
-    required this.ability,
-    this.abilityPower = 0,
-    this.maxCardsPerTurn = 3,
-  });
-
-  void drawCards(Deck deck) {
-    currentHand = deck.draw(maxCardsPerTurn, includeConsumables: false);
-  }
-
-  void useAbility(Player player) {
-    // Custom logic per boss type
-    // e.g., Plub copies last 3 player cards
-  }
-
-  void takeDamage(int damage) {
-    hp -= damage;
-    if (hp < 0) hp = 0;
-  }
-
-  void resetHp() {
-    hp = maxHp;
-  }
-}
-```
-
-**Notes:**
-
-* `useAbility()` can be overridden for each boss type.
-* `maxCardsPerTurn` allows flexibility for bosses like Party.
+### **lib/models/player_model.dart**
+- Defines **Player state**:  
+  - `hp` (default 50), `maxHp`.  
+  - `hand` (cards in play).  
+  - `deck` (personal deck instance).  
+- Can be extended for consumables, buffs, debuffs, or special attributes.  
 
 ---
 
-## Cubit / Bloc Architecture
-
-### Core Layers
-
-#### 1. UI Layer
-- Displays:
-  - Player and boss HP
-  - Card hands
-  - Combat results
-  - Consumable usage
-- Reacts to **Cubit/Bloc state changes**
-
-#### 2. State Management Layer
-
-**GameCubit**
-- States:
-  - `GameInitial`
-  - `PlayerTurn`
-  - `BossTurn`
-  - `CombatResult`
-  - `GameOver`
-- Responsibilities:
-  - Handle player actions: card selection, consumable usage
-  - Trigger boss AI logic
-  - Resolve combat via `CombatResolver`
-  - Update HP and card hands
-  - Emit new states for UI
-
-**CardCubit**
-- States:
-  - `CardsDrawn`
-  - `CardsSelected`
-  - `CardsPlayed`
-- Responsibilities:
-  - Manage deck: shuffle, draw, discard
-  - Track remaining cards
-  - Validate selected cards
-
-#### 3. Domain / Logic Layer
-- **Player**: HP, consumables, selected cards
-- **Boss**: HP, abilities, selected cards
-- **CombatResolver**: Resolves Atk/Def, nullify mechanic, excess damage
-- **DeckManager**: Handles draw/discard, separate player consumables
-
-#### 4. Data Layer
-- `deck_data.dart`, `boss_data.dart`, `consumables_data.dart`
-- Centralizes all static and dynamic game data
+### **lib/models/boss_model.dart**
+- Defines **Boss state**:  
+  - `id`, `name`, `hp`, `maxHp`.  
+  - `weapon`, `ability`, `abilityPower`.  
+  - `maxCardsPerTurn`.  
+  - `currentHand`.  
+- Provides:  
+  - `drawCards(Deck)` → fills boss hand without consumables.  
+  - `useAbility(Player)` → custom boss logic.  
+  - `takeDamage()` and `resetHp()`.  
 
 ---
 
-## Flow Example
-
-```
-
-UI Event (player chooses cards)
-↓
-GameCubit emits PlayerTurn state
-↓
-Player actions processed by Player / DeckManager
-↓
-CombatResolver calculates damage / effects
-↓
-Boss AI chooses cards (Boss class)
-↓
-CombatResolver resolves boss actions
-↓
-GameCubit emits CombatResult state
-↓
-UI updates to show results
-↓
-Check Win/Lose → emit GameOver or next PlayerTurn
-
-```
+### **lib/ui/screens/menu_screen.dart**
+- Displays **main menu**:  
+  - Title with neon-styled text and weapon icons.  
+  - Buttons: Start, Rules, Exit.  
+  - Footer (version & credits).  
+- Visual style:  
+  - Neon glow text.  
+  - Glassmorphic card panel.  
+  - Gradient + starfield background.  
 
 ---
 
-### Notes
-- Using **Cubit** is simpler for linear game flow; **Bloc** can be used if event-driven logic is preferred
-- Data layer keeps the project modular and maintainable
-- UI layer listens to Cubit states, never mutates game logic directly
+### **lib/ui/screens/combat_screen.dart**
+- Displays the **combat background** and navigation back button.  
+- Future expansion: integrate player/boss HP bars, hands, and card play area.  
+
+---
+
+### **lib/ui/screens/gameover_screen.dart**
+- Shown when the game ends (win or lose).  
+- Displays result and offers actions: retry, return to menu.  
+
+---
+
+### **lib/ui/screens/rules_screen.dart**
+- Provides **instructions and rules** of the game.  
+- Static or scrollable text layout.  
+
+---
+
+### **lib/ui/screens/dev_screen.dart**
+- Development/debug screen.  
+- Can be used to test decks, boss AI, or specific UI components.  
+
+---
+
+### **lib/cubit/game_cubit.dart**
+- Manages the **overall game loop**.  
+- States: `GameInitial`, `PlayerTurn`, `BossTurn`, `CombatResult`, `GameOver`.  
+- Responsibilities:  
+  - Handle player actions (card select, consumables).  
+  - Trigger boss AI logic.  
+  - Call `CombatResolver`.  
+  - Emit new states for UI updates.  
+
+---
+
+### **lib/cubit/card_cubit.dart**
+- Manages **deck and card state**.  
+- States: `CardsDrawn`, `CardsSelected`, `CardsPlayed`.  
+- Responsibilities:  
+  - Shuffle, draw, and discard cards.  
+  - Validate selected cards.  
+
+---
+
+### **lib/services/combat_resolver.dart**
+- Core battle resolution logic:  
+  - Attack vs defense card comparison.  
+  - Apply consumable effects.  
+  - Handle nullify mechanics and excess damage.  
+- Independent from UI; testable as a pure logic service.  
+
+---
+
+### **lib/data/deck_data.dart**
+- Defines **default deck composition**: attack, defense, and consumables.  
+- Provides helper functions for deck initialization.  
+
+---
+
+### **lib/data/boss_data.dart**
+- Contains **all boss definitions**:  
+  - Base stats (HP, weapon).  
+  - Abilities (e.g., copy cards, special skills).  
+  - AI parameters like draw count or attack patterns.  
