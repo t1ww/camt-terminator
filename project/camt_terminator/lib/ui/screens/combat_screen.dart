@@ -9,7 +9,7 @@ class CombatScreen extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/combat_background.png'),
+            image: AssetImage('assets/images/combat_background2.png'),
             fit: BoxFit.cover,
           ),
         ),
