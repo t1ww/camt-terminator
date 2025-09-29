@@ -60,24 +60,24 @@
 ## Bosses
 
 1. **Plub**  
-   - HP: 22  
+   - HP: 26  
    - Weapon: Tarot cards  
    - Ability: For every 5th rounds played, Plub copies the 3 cards used by the player and plays them in addition, adding up to 6 cards per turn.
 
 2. **Con**  
-   - HP: 20  
+   - HP: 23  
    - Weapon: Pencil / Finger snap  
    - Ability:  
      - Phase 1 (>20% HP): randomly swaps one of the player’s selected cards before combat starts. (Don't forget to play finger snap sfx.)
      - Phase 2 (≤20% HP): swaps all of the player’s cards. (Make finger snap sfx louder with more echo for impact.)
 
 3. **Tew**  
-   - HP: 18  
+   - HP: 20  
    - Weapon: Bow  
    - Ability: Attacks twice when using Atk cards.
 
 4. **Party**  
-   - HP: 24  
+   - HP: 29  
    - Weapon: Hammer  
    - Ability: Can play 4 cards per turn instead of 3.
 

@@ -1,17 +1,21 @@
 // project\camt_terminator\lib\models\boss_model.dart
+import 'dart:math';
+
 import 'package:camt_terminator/models/card_model.dart';
-import 'package:camt_terminator/models/decl_model.dart';
+import 'package:camt_terminator/models/deck_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
 
-class Boss {
+abstract class Boss {
   final String id;
   final String name;
   int hp;
   final int maxHp;
   final String weapon;
   final String ability;
-  final int abilityPower;       // Optional numeric parameter
-  final int maxCardsPerTurn;    // e.g., Party plays 4 cards
+  final int abilityPower;
+  final int maxHandsPerTurn;
+  final int maxPlayingCardsPerTurn;
+
   List<Card> currentHand = [];
 
   Boss({
@@ -22,17 +26,36 @@ class Boss {
     required this.weapon,
     required this.ability,
     this.abilityPower = 0,
-    this.maxCardsPerTurn = 3,
+    this.maxHandsPerTurn = 5,
+    this.maxPlayingCardsPerTurn = 3,
   });
 
   void drawCards(Deck deck) {
-    currentHand = deck.draw(maxCardsPerTurn, includeConsumables: false);
+    currentHand = deck.draw(maxHandsPerTurn, includeConsumables: false);
   }
 
-  void useAbility(Player player) {
-    // Custom logic per boss type
-    // e.g., Plub copies last 3 player cards
+  /// Boss plays up to [maxPlayingCardsPerTurn] cards from its hand.
+  /// AI logic will be just random for simplicity.
+  List<Card> playCards() {
+    final rng = Random();
+
+    // how many cards to play this turn
+    final playCount = currentHand.length < maxPlayingCardsPerTurn
+        ? currentHand.length
+        : maxPlayingCardsPerTurn;
+
+    // pick random cards
+    final playedCards = <Card>[];
+    for (var i = 0; i < playCount; i++) {
+      final index = rng.nextInt(currentHand.length);
+      playedCards.add(currentHand.removeAt(index));
+    }
+
+    return playedCards;
   }
+
+  /// Must be implemented by each specific boss
+  void useAbility(Player player);
 
   void takeDamage(int damage) {
     hp -= damage;

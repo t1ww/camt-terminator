@@ -7,5 +7,9 @@ class Player {
   List<Card> deck = [];
 
   num get maxHp => 50;
-  // etc.
+  
+  void takeDamage(num damage) {
+    hp -= damage;
+    if (hp < 0) hp = 0;
+  }
 }
