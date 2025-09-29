@@ -1,4 +1,3 @@
-// project\camt_terminator\lib\ui\screens\combat_screen.dart
 import 'package:flutter/material.dart';
 
 class CombatScreen extends StatelessWidget {
@@ -6,6 +5,21 @@ class CombatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/combat_background.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: const Center(
+          child: Text(
+            'Combat Screen',
+            style: TextStyle(color: Colors.white, fontSize: 24),
+          ),
+        ),
+      ),
+    );
   }
 }

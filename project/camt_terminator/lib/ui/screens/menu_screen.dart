@@ -1,5 +1,6 @@
 // project\camt_terminator\lib\ui\screens\menu_screen.dart
 import 'dart:ui';
+import 'package:camt_terminator/ui/screens/combat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -21,7 +22,10 @@ class MenuScreen extends StatelessWidget {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 480),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
                   child: _GlassPanel(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -31,26 +35,45 @@ class MenuScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _WeaponIcon(path: 'assets/images/knife.png', flip: false),
+                            _WeaponIcon(
+                              path: 'assets/images/knife.png',
+                              flip: false,
+                            ),
                             SizedBox(width: width * 0.04),
                             Column(
                               children: const [
-                                _NeonText('CAMT', size: 40, color: Color(0xFFFFB74D)),
+                                _NeonText(
+                                  'CAMT',
+                                  size: 40,
+                                  color: Color(0xFFFFB74D),
+                                ),
                                 SizedBox(height: 2),
-                                _NeonText('Terminator', size: 18, color: Color(0xFFFFB74D)),
+                                _NeonText(
+                                  'Terminator',
+                                  size: 18,
+                                  color: Color(0xFFFFB74D),
+                                ),
                               ],
                             ),
                             SizedBox(width: width * 0.04),
-                            _WeaponIcon(path: 'assets/images/shotgun.png', flip: true),
+                            _WeaponIcon(
+                              path: 'assets/images/shotgun.png',
+                              flip: true,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 24),
                         // Buttons
                         _NeonButton(
                           label: 'Start',
-                          borderColor: const Color(0xFFFF77E9), // pink
-                          onTap: () => Navigator.pushNamed(context, '/game'),
+                          borderColor: const Color(0xFFFF77E9),
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const CombatScreen(),
+                            ),
+                          ),
                         ),
+
                         const SizedBox(height: 12),
                         _NeonButton(
                           label: 'Rule',
@@ -108,11 +131,7 @@ class _SpaceBackground extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0B0F1A),
-            Color(0xFF0E1530),
-            Color(0xFF0B0F1A),
-          ],
+          colors: [Color(0xFF0B0F1A), Color(0xFF0E1530), Color(0xFF0B0F1A)],
         ),
       ),
       child: Stack(
@@ -130,11 +149,7 @@ class _SpaceBackground extends StatelessWidget {
             ),
           ),
           // stars layer (simple noise dots)
-          Positioned.fill(
-            child: CustomPaint(
-              painter: _StarPainter(),
-            ),
-          ),
+          Positioned.fill(child: CustomPaint(painter: _StarPainter())),
         ],
       ),
     );
@@ -184,13 +199,11 @@ class _WeaponIcon extends StatelessWidget {
       path,
       height: 48,
       filterQuality: FilterQuality.medium,
-      errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported, size: 40),
+      errorBuilder: (_, __, ___) =>
+          const Icon(Icons.image_not_supported, size: 40),
     );
 
-    return Transform.scale(
-      scaleX: flip ? -1 : 1,
-      child: img,
-    );
+    return Transform.scale(scaleX: flip ? -1 : 1, child: img);
   }
 }
 
