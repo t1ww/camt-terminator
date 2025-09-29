@@ -13,10 +13,16 @@ class CombatScreen extends StatelessWidget {
             fit: BoxFit.cover,
           ),
         ),
-        child: const Center(
-          child: Text(
-            'Combat Screen',
-            style: TextStyle(color: Colors.white, fontSize: 24),
+        child: SafeArea(
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
           ),
         ),
       ),
