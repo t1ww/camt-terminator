@@ -1,5 +1,5 @@
 // project\camt_terminator\lib\models\deck.dart
-import 'package:camt_terminator/models/card.dart';
+import 'package:camt_terminator/models/card_model.dart';
 
 class Deck {
   List<Card> cards = [];
@@ -23,6 +23,10 @@ class Deck {
       cards.remove(card);
     }
     return drawn;
+  }
+
+  void insertOnTop(Card card) {
+    cards.insert(0, card);
   }
 
   void discard(List<Card> usedCards) {

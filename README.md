@@ -11,7 +11,7 @@
 
 - Both the player and bosses draw cards from a shared deck:
   - First turn: 5 cards
-  - Subsequent turns: 3 cards
+  - After that: draw until you have 5 cards in hand (applies to both player and bosses).
 - Players select **3 cards** per combat round.
 - The goal: defeat all 4 bosses by reducing their HP to 0 while keeping your own HP above 0.
 
@@ -53,7 +53,7 @@
 - Equipped with Shotgun and Knife
 - HP: 50
 - Can use consumables before combat starts
-- Draws 5 cards on the first turn, then 3 cards for subsequent turns.
+- Draws 5 cards on the first turn, then always draw until 5 cards in hand for subsequent turns.
 
 ---
 
