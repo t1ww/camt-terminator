@@ -72,7 +72,7 @@ class _CombatScreenState extends State<CombatScreen> {
                 Container(
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/images/combat_background2.png'),
+                      image: AssetImage('assets/images/combat_background.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
