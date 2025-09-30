@@ -26,4 +26,11 @@ flutter:
     - assets/images/card1.png
     - assets/images/card2.png
     - assets/images/card3.png
+    - assets/images/cardEmpty.png
+    - assets/images/deck.png
+    - assets/images/player.png
+    - assets/images/boss1.png
+    - assets/images/boss2.png
+    - assets/images/boss3.png
+    - assets/images/boss4.png
     - assets/images/combat_background.png

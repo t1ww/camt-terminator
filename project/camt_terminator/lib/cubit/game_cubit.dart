@@ -1,5 +1,7 @@
 // lib/cubit/game_cubit.dart
 import 'dart:async';
+import 'dart:math';
+import 'package:camt_terminator/data/boss_data.dart';
 import 'package:flutter/material.dart';
 import '../models/player_model.dart';
 import '../models/boss_model.dart';
@@ -139,6 +141,18 @@ class GameCubit {
     Navigator.of(ctx).pushReplacement(
       MaterialPageRoute(builder: (_) => const GameoverScreen()),
     );
+  }
+
+  /// Pick a random boss from available ones
+  Boss getRandomBoss() {
+    final rnd = Random();
+    return allBosses[rnd.nextInt(allBosses.length)];
+  }
+
+  /// Initialize player if not yet created
+  Player getPlayerInstance() {
+    player = Player(); // default stats
+    return player;
   }
 }
 

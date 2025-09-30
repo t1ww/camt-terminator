@@ -5,8 +5,9 @@ import 'package:camt_terminator/models/player_model.dart';
 abstract class Card {
   final String id;       // Unique identifier
   final String name;     // e.g., "Atk 2", "Shotgun"
-  
-  Card({required this.id, required this.name});
+  final int? power;      // nullable, only attack/defense cards have power
+
+  Card({required this.id, required this.name, this.power});
 }
 
 class AttackCard extends Card {

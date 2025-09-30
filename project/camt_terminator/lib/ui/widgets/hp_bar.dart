@@ -1,1 +1,0 @@
-// project\camt_terminator\lib\ui\widgets\hp_bar.dart

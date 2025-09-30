@@ -1,10 +1,13 @@
 // lib/ui/screens/combat_screen.dart
 import 'package:camt_terminator/cubit/game_cubit.dart';
-import 'package:camt_terminator/models/card_model.dart';
+import 'package:camt_terminator/models/boss_model.dart';
+import 'package:camt_terminator/models/player_model.dart';
 import 'package:flutter/material.dart';
 import '../../cubit/card_cubit.dart';
-import '../../models/player_model.dart';
-import '../../models/boss_model.dart';
+import '../widgets/card_widget.dart';
+import '../widgets/player_widget.dart';
+import '../widgets/boss_widget.dart';
+import '../widgets/deck_widget.dart';
 
 class CombatScreen extends StatefulWidget {
   const CombatScreen({super.key});
@@ -16,13 +19,28 @@ class CombatScreen extends StatefulWidget {
 class _CombatScreenState extends State<CombatScreen> {
   final CardCubit _cubit = CardCubit();
 
-  final Player _player = GameCubit.I.player;
-  final Boss _boss = GameCubit.I.boss;
+  late final Player _player;
+  late final Boss _boss;
 
   @override
   void initState() {
     super.initState();
+
+    // Initialize player & boss using GameCubit
+    _player = GameCubit.I.getPlayerInstance();
+    _boss = GameCubit.I.getRandomBoss();
+
+    GameCubit.I.player = _player;
+    GameCubit.I.boss = _boss;
+
     _cubit.reset();
+  }
+
+  @override
+  void dispose() {
+    // Clean up GameCubit overlays and state
+    GameCubit.I.teardownIfAny();
+    super.dispose();
   }
 
   @override
@@ -50,27 +68,40 @@ class _CombatScreenState extends State<CombatScreen> {
                     "Turn ${_cubit.turn}",
                     style: const TextStyle(color: Colors.white, fontSize: 18),
                   ),
-                  const SizedBox(width: 48), // placeholder for symmetry
+                  const SizedBox(width: 48),
                 ],
               ),
 
+              const SizedBox(height: 16),
+
+              // Boss Widget
+              BossWidget(boss: _boss),
+
               const Spacer(),
 
-              // Card Hand
+              // Player Hand (cards)
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
                 alignment: WrapAlignment.center,
-                children: _cubit.hand
-                    .map((c) => _CardRect(label: _labelFor(c)))
-                    .toList(),
+                children: _cubit.hand.map((c) => CardWidget(card: c)).toList(),
               ),
 
               const Spacer(),
 
+              // Deck Widget
+              DeckWidget(deck: _cubit.deck),
+
+              const SizedBox(height: 12),
+
+              // Player Widget (HP + info)
+              PlayerWidget(player: _player),
+
+              const SizedBox(height: 16),
+
               // Buttons
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
                   children: [
                     Expanded(
@@ -98,55 +129,6 @@ class _CombatScreenState extends State<CombatScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  String _labelFor(dynamic c) {
-    if (c is AttackCard) return 'ATK ${c.power}';
-    if (c is DefenseCard) return 'DEF ${c.power}';
-    if (c is MedkitCard) return 'Medkit';
-    if (c is ShotgunCard) return 'Shotgun';
-    return 'Card';
-  }
-}
-
-// Simplified placeholder boss for now
-class DummyBoss extends Boss {
-  DummyBoss()
-    : super(
-        id: 'boss_dummy',
-        name: 'Dummy',
-        hp: 15,
-        maxHp: 15,
-        weapon: 'None',
-        ability: 'None',
-      );
-
-  @override
-  void useAbility(Player player) {}
-}
-
-class _CardRect extends StatelessWidget {
-  final String label;
-  const _CardRect({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 80,
-      height: 110,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.black.withOpacity(0.6),
-        border: Border.all(color: Colors.white24, width: 1.5),
-      ),
-      child: Center(
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white, fontSize: 18),
         ),
       ),
     );
