@@ -19,7 +19,11 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    # - assets/images/knife.png
-    # - assets/images/shotgun.png
+    - assets/images/knife.png
+    - assets/images/medkit.png
+    - assets/images/shield.png
+    - assets/images/shotgun.png
+    - assets/images/card1.png
+    - assets/images/card2.png
+    - assets/images/card3.png
     - assets/images/combat_background.png
-    - assets/images/combat_background2.png

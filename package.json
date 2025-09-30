@@ -1,0 +1,20 @@
+{
+  "name": "camt-terminator",
+  "version": "1.0.0",
+  "description": "- A solo rogue-like game played in vertical.\r - both player and boss will draw the cards from the deck, draw 5 for the first turn and 3 for the rest of the game.\r - then choose 3 card to be use in combat.",
+  "main": "index.js",
+  "scripts": {
+    "flutter": "cd ./project/camt_terminator && flutter run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/t1ww/camt-terminator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/t1ww/camt-terminator/issues"
+  },
+  "homepage": "https://github.com/t1ww/camt-terminator#readme"
+}
