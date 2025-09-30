@@ -28,15 +28,18 @@ class CardCubit {
     _resetDeck();
   }
 
-  // Draw cards into hand (first draw = 5, then 3)
+  // Draw cards until hand has 5
   void drawCards() {
-    final n = (turn == 0) ? 5 : 3;
-    final drawn = deck.draw(n, includeConsumables: false);
-    if (drawn.isEmpty) return; // Deck empty, hand unchanged
+    const maxHandSize = 5;
+    final toDraw = maxHandSize - hand.length;
+    if (toDraw <= 0) return; // Already full
 
-    turn++;
-    hand = drawn;
+    final drawn = deck.draw(toDraw, includeConsumables: false);
+    if (drawn.isEmpty) return; // Deck empty
+
+    hand.addAll(drawn);
     selectedCards = []; // Clear selection on new draw
+    turn++;
   }
 
   // Reset deck and hand

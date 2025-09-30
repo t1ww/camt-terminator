@@ -1,8 +1,8 @@
 // lib/ui/screens/combat_screen.dart
-import 'package:camt_terminator/cubit/game_cubit.dart';
 import 'package:camt_terminator/models/boss_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
 import 'package:flutter/material.dart';
+import 'package:camt_terminator/cubit/game_cubit.dart';
 import '../../cubit/card_cubit.dart';
 import '../widgets/card_widget.dart';
 import '../widgets/player_widget.dart';
@@ -17,29 +17,38 @@ class CombatScreen extends StatefulWidget {
 }
 
 class _CombatScreenState extends State<CombatScreen> {
-  final CardCubit _cubit = CardCubit();
+  final CardCubit _cardCubit = CardCubit();
 
   late final Player _player;
-  late final Boss _boss;
+  late Boss _boss;
 
   @override
   void initState() {
     super.initState();
 
-    // Initialize player & boss using GameCubit
-    _player = GameCubit.I.getPlayerInstance();
-    _boss = GameCubit.I.getRandomBoss();
+    // Initialize GameCubit and CardCubit
+    GameCubit.I.startCombat();
+    _player = GameCubit.I.player;
+    _boss = GameCubit.I.boss;
 
-    GameCubit.I.player = _player;
-    GameCubit.I.boss = _boss;
+    _cardCubit.reset();
+  }
 
-    _cubit.reset();
+  void _onBossDefeated() {
+    final continued = GameCubit.I.onBossDefeated(context);
+    if (!continued) return; // Game ended, navigation handled
+
+    // Update local boss reference and reset CardCubit for next round
+    setState(() {
+      _boss = GameCubit.I.boss;
+      _cardCubit.reset();
+    });
   }
 
   @override
   void dispose() {
-    // Clean up GameCubit overlays and state
-    GameCubit.I.teardownIfAny();
+    // Clean up
+    GameCubit.I.reset();
     super.dispose();
   }
 
@@ -65,7 +74,7 @@ class _CombatScreenState extends State<CombatScreen> {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   Text(
-                    "Turn ${_cubit.turn}",
+                    "Turn ${_cardCubit.turn}",
                     style: const TextStyle(color: Colors.white, fontSize: 18),
                   ),
                   const SizedBox(width: 48),
@@ -84,13 +93,13 @@ class _CombatScreenState extends State<CombatScreen> {
                 spacing: 12,
                 runSpacing: 12,
                 alignment: WrapAlignment.center,
-                children: _cubit.hand.map((c) => CardWidget(card: c)).toList(),
+                children: _cardCubit.hand.map((c) => CardWidget(card: c)).toList(),
               ),
 
               const Spacer(),
 
               // Deck Widget
-              DeckWidget(deck: _cubit.deck),
+              DeckWidget(deck: _cardCubit.deck),
 
               const SizedBox(height: 12),
 
@@ -107,21 +116,21 @@ class _CombatScreenState extends State<CombatScreen> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          setState(() => _cubit.drawCards());
+                          setState(() => _cardCubit.drawCards());
                         },
-                        child: Text(_cubit.turn == 0 ? 'Draw 5' : 'Draw 3'),
+                        child: const Text('Draw / Refill Hand'),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                          setState(() => _cubit.reset());
+                          _onBossDefeated();
                         },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.white),
                         ),
-                        child: const Text('Reset'),
+                        child: const Text('Defeat Boss (Test)'),
                       ),
                     ),
                   ],

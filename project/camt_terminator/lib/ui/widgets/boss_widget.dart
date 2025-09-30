@@ -5,11 +5,20 @@ import 'hpBar_widget.dart';
 
 class BossWidget extends StatelessWidget {
   final Boss boss;
-  const BossWidget({required this.boss});
+  const BossWidget({super.key, required this.boss});
 
   @override
   Widget build(BuildContext context) {
-    String asset = 'assets/images/boss1.png';
+    // Map boss IDs to image assets
+    final assetMap = {
+      'boss_plub': 'assets/images/boss1.png',
+      'boss_confirm': 'assets/images/boss2.png',
+      'boss_tew': 'assets/images/boss3.png',
+      'boss_party': 'assets/images/boss4.png',
+    };
+
+    final asset = assetMap[boss.id] ?? 'assets/images/boss1.png';
+
     return Column(
       children: [
         Image.asset(asset, width: 80, height: 80),
