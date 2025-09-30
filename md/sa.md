@@ -21,9 +21,11 @@ camt_terminator/
 │  │  │  ├─ rules_screen.dart    # Game instructions
 │  │  │  └─ dev_screen.dart      # Debug/dev testing entry
 │  │  └─ widgets/
-│  │     ├─ card_widget.dart     # Card display component
-│  │     ├─ hp_bar.dart          # Player/boss HP bar widget
-│  │     └─ consumable_widget.dart # Consumable (heal/dmg) display
+│  │     ├─ card_widget.dart       # Card display component
+│  │     ├─ hpBar_widget.dart      # HP bar widget for player or boss
+│  │     ├─ player_widget.dart     # Player widget (includes HP bar)
+│  │     ├─ boss_widget.dart       # Boss widget (includes HP bar)
+│  │     └─ deck_widget.dart       # Deck display widget
 │  │
 │  ├─ cubit/
 │  │  ├─ game_cubit.dart         # Manages turn flow & game states

@@ -1,13 +1,15 @@
 // lib/cubit/game_cubit.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../ui/screens/gameover_screen.dart'; // <-- we’ll use this page
+import '../models/player_model.dart';
+import '../models/boss_model.dart';
+import '../ui/screens/gameover_screen.dart';
 
 class GameCubit {
   GameCubit._();
   static final GameCubit I = GameCubit._();
 
-  OverlayState? _overlay; // local overlay from CombatScreen
+  OverlayState? _overlay; // Overlay from CombatScreen
   BuildContext? _hostContext; // BuildContext of CombatScreen
   OverlayEntry? _bossOverlay;
   OverlayEntry? _endBtnOverlay;
@@ -16,21 +18,31 @@ class GameCubit {
   GamePhase _phase = GamePhase.idle;
   GamePhase get phase => _phase;
 
-  /// Start the loop with the *local* overlay of CombatScreen and its context.
+  // Player & Boss instances
+  late Player player;
+  late Boss boss;
+
+  /// Start combat with overlays and initialize player & boss
   void onEnterCombatWithOverlay(
     OverlayState overlay,
-    BuildContext hostContext,
-  ) {
+    BuildContext hostContext, {
+    required Player initPlayer,
+    required Boss initBoss,
+  }) {
     _overlay = overlay;
     _hostContext = hostContext;
     _clearAll();
+
+    player = initPlayer;
+    boss = initBoss;
+
     _phase = GamePhase.bossSummoned;
 
     _insertBossOverlay();
     _insertEndButtonOverlay();
   }
 
-  /// Clean everything (called on back/dispose, or restart).
+  /// Clean everything (called on back/dispose, or restart)
   void teardownIfAny() {
     _clearAll();
     _overlay = null;
@@ -68,10 +80,10 @@ class GameCubit {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Colors.white, width: 3),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'BOSS',
-                  style: TextStyle(
+                  boss.name,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
@@ -104,7 +116,7 @@ class GameCubit {
             child: Material(
               color: Colors.transparent,
               child: ElevatedButton(
-                onPressed: _goToGameOver, // <-- navigate to game over
+                onPressed: _goToGameOver,
                 child: const Text('End (test)'),
               ),
             ),
@@ -119,16 +131,13 @@ class GameCubit {
 
   void _goToGameOver() {
     _phase = GamePhase.ended;
-
     _clearAll();
 
     final ctx = _hostContext;
     if (ctx == null) return;
 
     Navigator.of(ctx).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => const GameoverScreen(), 
-      ),
+      MaterialPageRoute(builder: (_) => const GameoverScreen()),
     );
   }
 }
