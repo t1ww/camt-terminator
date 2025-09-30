@@ -6,6 +6,7 @@ import '../data/boss_data.dart';
 import '../ui/screens/gameover_screen.dart';
 
 class GameCubit {
+  // Singleton pattern
   GameCubit._();
   static final GameCubit I = GameCubit._();
 
@@ -21,6 +22,11 @@ class GameCubit {
   final List<Boss> _bossPool = [...allBosses]; // copy
   int _bossKills = 0;
   static const int maxBossKills = 4;
+
+  // Get round, count from bossKill
+  int getRound() {
+    return _bossKills + 1;
+  }
 
   /// Start combat with a new player and first boss
   void startCombat({Player? initPlayer}) {

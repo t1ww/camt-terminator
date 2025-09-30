@@ -7,16 +7,20 @@ import '../../data/deck_data.dart';
 import '../services/combat_resolver.dart';
 
 /// CardCubit manages combat state:
-/// - Deck & hand
+/// - Deck, hand, discard
 /// - Turn count
 /// - Selected cards (up to 3 for player)
 /// - Drawing, resetting, and playing cards
 class CardCubit {
+  // Singleton
+  CardCubit._();
+  static final CardCubit I = CardCubit._();
+
   // Active deck (shuffled)
   late Deck deck;
 
   // Tracks round number
-  int turn = 0;
+  int turn = 1;
 
   // Current hand of drawn cards
   List<Card> hand = [];
@@ -24,34 +28,51 @@ class CardCubit {
   // Currently selected cards (max 3)
   List<Card> selectedCards = [];
 
-  CardCubit() {
+  /// Init
+  void init() {
     _resetDeck();
+    turn = 1;
+    hand = [];
+    selectedCards = [];
   }
 
-  // Draw cards until hand has 5
-  void drawCards() {
+  /// Draw cards until hand has 5
+  void drawCards({List<Card> exclude = const []}) {
     const maxHandSize = 5;
     final toDraw = maxHandSize - hand.length;
-    if (toDraw <= 0) return; // Already full
+    if (toDraw <= 0) return;
 
-    final drawn = deck.draw(toDraw, includeConsumables: false);
-    if (drawn.isEmpty) return; // Deck empty
+    var drawn = deck
+        .draw(toDraw, includeConsumables: false)
+        .where((c) => !exclude.contains(c))
+        .toList();
+
+    // If deck is empty but discard pile has cards, recycle
+    if (drawn.isEmpty && deck.discardPile.isNotEmpty) {
+      deck.resetDeck();
+      drawn = deck
+          .draw(toDraw, includeConsumables: false)
+          .where((c) => !exclude.contains(c))
+          .toList();
+    }
+
+    if (drawn.isEmpty) return;
 
     hand.addAll(drawn);
-    selectedCards = []; // Clear selection on new draw
+    selectedCards = [];
     turn++;
   }
 
-  // Reset deck and hand
+  /// Reset deck and hand
   void reset() {
     _resetDeck();
-    turn = 0;
+    turn = 1;
     hand = [];
     selectedCards = [];
   }
 
   void _resetDeck() {
-    deck = createShuffledCoreDeck();
+    deck = initializeDeck();
   }
 
   /// Toggle card selection (adds if <3, removes if already selected)
@@ -64,12 +85,9 @@ class CardCubit {
   }
 
   /// Play selected cards against boss and clear selection
-  /// Delegates combat logic to CombatResolver
   void playSelectedCards({required Player player, required Boss boss}) {
-    // Boss selects cards to play this turn
     final bossPlayedCards = boss.playCards();
 
-    // Resolve the round
     CombatResolver.resolveRound(
       playerCards: selectedCards,
       bossCards: bossPlayedCards,
@@ -77,7 +95,10 @@ class CardCubit {
       boss: boss,
     );
 
-    // Remove played cards from player's hand
+    // Move played cards into discard pile
+    deck.discard(selectedCards);
+
+    // Remove played cards from hand
     hand.removeWhere((c) => selectedCards.contains(c));
     selectedCards = [];
   }

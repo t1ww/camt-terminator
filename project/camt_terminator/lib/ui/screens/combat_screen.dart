@@ -17,8 +17,6 @@ class CombatScreen extends StatefulWidget {
 }
 
 class _CombatScreenState extends State<CombatScreen> {
-  final CardCubit _cardCubit = CardCubit();
-
   late final Player _player;
   late Boss _boss;
 
@@ -26,28 +24,24 @@ class _CombatScreenState extends State<CombatScreen> {
   void initState() {
     super.initState();
 
-    // Initialize GameCubit and CardCubit
     GameCubit.I.startCombat();
+    CardCubit.I.reset();
+
     _player = GameCubit.I.player;
     _boss = GameCubit.I.boss;
-
-    _cardCubit.reset();
   }
 
   void _onBossDefeated() {
     final continued = GameCubit.I.onBossDefeated(context);
     if (!continued) return; // Game ended, navigation handled
 
-    // Update local boss reference and reset CardCubit for next round
     setState(() {
       _boss = GameCubit.I.boss;
-      _cardCubit.reset();
     });
   }
 
   @override
   void dispose() {
-    // Clean up
     GameCubit.I.reset();
     super.dispose();
   }
@@ -74,7 +68,11 @@ class _CombatScreenState extends State<CombatScreen> {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   Text(
-                    "Turn ${_cardCubit.turn}",
+                    "Turn: ${CardCubit.I.turn}",
+                    style: const TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                  Text(
+                    "Round: ${GameCubit.I.getRound()} / 4",
                     style: const TextStyle(color: Colors.white, fontSize: 18),
                   ),
                   const SizedBox(width: 48),
@@ -88,52 +86,51 @@ class _CombatScreenState extends State<CombatScreen> {
 
               const Spacer(),
 
-              // Player Hand (cards)
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                alignment: WrapAlignment.center,
-                children: _cardCubit.hand.map((c) => CardWidget(card: c)).toList(),
+              // Player hand above player
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      alignment: WrapAlignment.center,
+                      children: CardCubit.I.hand
+                          .map((c) => CardWidget(card: c))
+                          .toList(),
+                    ),
+                    const SizedBox(height: 12),
+                    // Player Widget (HP + info)
+                    PlayerWidget(player: _player),
+                  ],
+                ),
               ),
 
-              const Spacer(),
-
-              // Deck Widget
-              DeckWidget(deck: _cardCubit.deck),
-
-              const SizedBox(height: 12),
-
-              // Player Widget (HP + info)
-              PlayerWidget(player: _player),
+              // Deck on right-center
+              Positioned(
+                right: 16,
+                top: MediaQuery.of(context).size.height / 2 - 50,
+                child: DeckWidget(
+                  deck: CardCubit.I.deck,
+                  onTap: () {
+                    setState(() => CardCubit.I.drawCards());
+                  },
+                ),
+              ),
 
               const SizedBox(height: 16),
-
-              // Buttons
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() => _cardCubit.drawCards());
-                        },
-                        child: const Text('Draw / Refill Hand'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          _onBossDefeated();
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.white),
-                        ),
-                        child: const Text('Defeat Boss (Test)'),
-                      ),
-                    ),
-                  ],
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8,
+                ),
+                child: OutlinedButton(
+                  onPressed: _onBossDefeated,
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.white),
+                  ),
+                  child: const Text('Defeat Boss (Test)'),
                 ),
               ),
             ],

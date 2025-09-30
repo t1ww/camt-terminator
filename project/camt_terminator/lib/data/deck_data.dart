@@ -42,7 +42,7 @@ List<game.Card> buildCoreDeck() {
   return cards;
 }
 
-Deck createShuffledCoreDeck() {
+Deck initializeDeck() {
   final deck = Deck(cards: buildCoreDeck());
   deck.shuffle();
   return deck;

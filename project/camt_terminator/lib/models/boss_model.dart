@@ -2,8 +2,8 @@
 import 'dart:math';
 
 import 'package:camt_terminator/models/card_model.dart';
-import 'package:camt_terminator/models/deck_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
+import 'package:camt_terminator/cubit/card_cubit.dart';
 
 abstract class Boss {
   final String id;
@@ -30,31 +30,37 @@ abstract class Boss {
     this.maxPlayingCardsPerTurn = 3,
   });
 
-  void drawCards(Deck deck) {
-    currentHand = deck.draw(maxHandsPerTurn, includeConsumables: false);
+  void drawCards(CardCubit cardCubit, {List<Card> exclude = const []}) {
+    final toDraw = maxHandsPerTurn - currentHand.length;
+    if (toDraw <= 0) return;
+
+    final drawn = cardCubit.deck
+        .draw(toDraw, includeConsumables: false)
+        .where((c) => !exclude.contains(c))
+        .toList();
+
+    currentHand.addAll(drawn);
   }
 
-  /// Boss plays up to [maxPlayingCardsPerTurn] cards from its hand.
-  /// AI logic will be just random for simplicity.
   List<Card> playCards() {
     final rng = Random();
-
-    // how many cards to play this turn
     final playCount = currentHand.length < maxPlayingCardsPerTurn
         ? currentHand.length
         : maxPlayingCardsPerTurn;
 
-    // pick random cards
     final playedCards = <Card>[];
+    // Play and remove cards from hand [playCount] times
     for (var i = 0; i < playCount; i++) {
       final index = rng.nextInt(currentHand.length);
       playedCards.add(currentHand.removeAt(index));
     }
 
+    // Boss cards should also go to discard pile
+    CardCubit.I.deck.discard(playedCards);
+
     return playedCards;
   }
 
-  /// Must be implemented by each specific boss
   void useAbility(Player player);
 
   void takeDamage(int damage) {
