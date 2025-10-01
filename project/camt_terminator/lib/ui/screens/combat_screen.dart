@@ -19,22 +19,11 @@ class CombatScreen extends StatefulWidget {
 }
 
 class _CombatScreenState extends State<CombatScreen> {
-  late final Player _player;
-  late Boss _boss;
-
   @override
   void initState() {
     super.initState();
     GameCubit.I.startCombat();
     CardCubit.I.reset();
-    _player = GameCubit.I.player;
-    _boss = GameCubit.I.boss;
-  }
-
-  void _onBossDefeated() {
-    final continued = GameCubit.I.onBossDefeated(context);
-    if (!continued) return;
-    setState(() => _boss = GameCubit.I.boss);
   }
 
   @override
@@ -90,16 +79,17 @@ class _CombatScreenState extends State<CombatScreen> {
                           fontSize: 18,
                         ),
                       ),
-                      const SizedBox(width: 40),
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 8),
-
                 // Boss area
-                BossWidget(boss: _boss),
-
+                ValueListenableBuilder<Boss?>(
+                  valueListenable: GameCubit.I.bossNotifier,
+                  builder: (context, boss, _) {
+                    if (boss == null) return const SizedBox.shrink();
+                    return BossWidget(boss: boss);
+                  },
+                ),
                 const SizedBox(height: 16),
 
                 // ----- Middle row: 3 empty slots (UI only) -----
@@ -135,34 +125,32 @@ class _CombatScreenState extends State<CombatScreen> {
                 ),
                 // Player character area (+ HP bar)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: PlayerWidget(player: _player),
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: ValueListenableBuilder<Player?>(
+                    valueListenable: GameCubit.I.playerNotifier,
+                    builder: (context, player, _) {
+                      if (player == null) return const SizedBox.shrink();
+                      return PlayerWidget(player: player);
+                    },
+                  ),
                 ),
 
                 // Player hand (bottom)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: Center(
                     child: Wrap(
                       spacing: 12,
                       runSpacing: 12,
                       alignment: WrapAlignment.center,
-                      children: CardCubit.I.hand
-                          .map((c) => CardWidget(card: c))
-                          .toList(),
+                      children: List.generate(5, (index) {
+                        if (index < CardCubit.I.hand.length) {
+                          return CardWidget(card: CardCubit.I.hand[index]);
+                        } else {
+                          return const EmptyCardWidget();
+                        }
+                      }),
                     ),
-                  ),
-                ),
-
-                // (Optional) test button
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                  child: OutlinedButton(
-                    onPressed: _onBossDefeated,
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.white),
-                    ),
-                    child: const Text('Defeat Boss (Test)'),
                   ),
                 ),
               ],
@@ -175,8 +163,8 @@ class _CombatScreenState extends State<CombatScreen> {
               alignment: Alignment.centerRight,
               child: Padding(
                 padding: const EdgeInsets.only(
-                  right: 12,
-                  top: 360,
+                  right: 0,
+                  top: 300,
                 ), // add top to push deck down
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,

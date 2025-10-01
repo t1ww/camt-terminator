@@ -12,13 +12,20 @@ class GameCubit {
   GameCubit._();
   static final GameCubit I = GameCubit._();
 
+  // Observer pattern
+  final ValueNotifier<Player?> playerNotifier = ValueNotifier(null);
+  final ValueNotifier<Boss?> bossNotifier = ValueNotifier(null);
+
+  // Player an boss with notifier
+  Player get player => playerNotifier.value!;
+  Boss get boss => bossNotifier.value!;
+
+  set player(Player p) => playerNotifier.value = p;
+  set boss(Boss b) => bossNotifier.value = b;
+  
   // Game state
   GamePhase _phase = GamePhase.idle;
   GamePhase get phase => _phase;
-
-  // Player & Boss instances
-  late Player player;
-  late Boss boss;
 
   // Boss tracking
   final List<Boss> _bossPool = [...allBosses]; // copy
