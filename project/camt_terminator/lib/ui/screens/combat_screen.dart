@@ -170,12 +170,11 @@ class _CombatScreenState extends State<CombatScreen> {
                 padding: const EdgeInsets.only(
                   right: 0,
                   top: 300,
-                ), // add top to push deck down
+                ), // Add top to push deck down
                 child: DeckWidget(
                   deck: CardCubit.I.deck,
                   onTap: () {
-                    CardCubit.I.drawCards();
-                    // update ui
+                    // Update ui
                     setState(() {});
                   },
                 ),

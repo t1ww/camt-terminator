@@ -1,4 +1,5 @@
 // lib/widgets/deck_widget.dart
+import 'package:camt_terminator/cubit/card_cubit.dart';
 import 'package:camt_terminator/models/deck_model.dart';
 import 'package:flutter/material.dart';
 
@@ -6,6 +7,13 @@ class DeckWidget extends StatelessWidget {
   final Deck deck;
   final VoidCallback? onTap; // <-- callback when deck is tapped
   const DeckWidget({super.key, required this.deck, this.onTap});
+  void deckDraw() {
+    // Calls draw card
+    CardCubit.I.drawCards();
+
+    // Update ui
+    onTap?.call();
+  }
 
   final double deckWidth = 72.0;
   final double deckHeight = 128.0;
@@ -18,7 +26,7 @@ class DeckWidget extends StatelessWidget {
         const Text('Deck', style: TextStyle(color: Colors.white)),
         const SizedBox(height: 4),
         GestureDetector(
-          onTap: onTap, // <-- call when tapped
+          onTap: deckDraw, // <-- call when tapped
           child: Container(
             width: deckWidth,
             height: deckHeight,

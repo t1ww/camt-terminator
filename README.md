@@ -1,122 +1,102 @@
-# CAMT Terminator
+# CAMT Terminator - New Features Documentation
 
-## Description: 
-- A solo rogue-like game played in vertical.
-- both player and boss will draw the cards from the deck, draw 5 for the first turn and 3 for the rest of the game.
-- then choose 3 card to be use in combat.
+This document explains the **sound feature** added to CAMT Terminator using just_audio, and how to integrate it into the project.  
+It demonstrates a real example from the game: **playing boss music**.
 
 ---
 
-## Gameplay Overview
+## 1. Sound Effects (just_audio)
 
-- Both the player and bosses draw cards from a shared deck:
-  - First turn: 5 cards
-  - After that: draw until you have 5 cards in hand (applies to both player and bosses).
-- Players select **3 cards** per combat round.
-- The goal: defeat all 4 bosses by reducing their HP to 0 while keeping your own HP above 0.
+**Purpose:**
 
-**Extra note**: when boss draw consumable card, the boss will skip to card under it, leaving the consumable card on top for the player.
+* Play background music for bosses
+* Increase player immersion
 
----
+**Library:** [just_audio](https://pub.dev/packages/just_audio)
 
-## Card Types
+**Setup:**
 
-### 1. Main Cards
-- **Attack (Atk)** and **Defense (Def)** cards are the core of combat.
-- Each card has a power value that determines its effect:
-  - **Attack**: deals damage equal to its power
-  - **Defense**: blocks damage equal to its power
+1. Install the package:
 
-### 2. Additional / Consumable Cards (Player Only)
-- **Shotgun Card**: instantly deals 7 damage
-- **Med Kit Card**: restores 5 HP
+```bash
+flutter pub add just_audio
+````
 
-### 3. Deck Composition (Total 80 Cards)
-- 38 Atk cards: 
-  - x10 power 1  
-  - x16 power 2  
-  - x12 power 3
-- 38 Def cards: 
-  - x10 power 1  
-  - x16 power 2  
-  - x12 power 3
-- x1 Shotgun card
-- x3 Med Kit cards  
+2. Place audio files in `assets/song/`, e.g.:
 
-**Note:** Bosses cannot draw consumable cards.
+```
+assets/song/Plub_theme.mp3
+assets/song/Con_theme.mp3
+assets/song/Tew_theme.mp3
+assets/song/Party_theme.mp3
+```
 
----
+3. Register assets in `pubspec.yaml`:
 
-## Protagonist
-
-**AJ.TUI**
-- Equipped with Shotgun and Knife
-- HP: 50
-- Can use consumables before combat starts
-- Draws 5 cards on the first turn, then always draw until 5 cards in hand for subsequent turns.
+```yaml
+flutter:
+  assets:
+    - assets/song/Plub_theme.mp3
+    - assets/song/Con_theme.mp3
+    - assets/song/Tew_theme.mp3
+    - assets/song/Party_theme.mp3
+```
 
 ---
 
-## Bosses
+## 2. Usage Example from Project
 
-1. **Plub**  
-   - HP: 26  
-   - Weapon: Tarot cards  
-   - Ability: For every 5th rounds played, Plub copies the 3 cards used by the player and plays them in addition, adding up to 6 cards per turn.
+In `lib/cubit/game_cubit.dart`, **boss music** is handled like this:
 
-2. **Con**  
-   - HP: 23  
-   - Weapon: Pencil / Finger snap  
-   - Ability:  
-     - Phase 1 (>20% HP): randomly swaps one of the player’s selected cards before combat starts. (Don't forget to play finger snap sfx.)
-     - Phase 2 (≤20% HP): swaps all of the player’s cards. (Make finger snap sfx louder with more echo for impact.)
+```dart
+final AudioPlayer _music = AudioPlayer();
 
-3. **Tew**  
-   - HP: 20  
-   - Weapon: Bow  
-   - Ability: Attacks twice when using Atk cards.
+Future<void> _playTrackForBoss(Boss b) async {
+  final path = _trackByBossId[b.id];
+  if (path == null) return; // no track mapped
 
-4. **Party**  
-   - HP: 29  
-   - Weapon: Hammer  
-   - Ability: Can play 4 cards per turn instead of 3.
+  // fade out previous track
+  await _fadeTo(0.0, const Duration(milliseconds: 400));
 
----
+  // load and play new boss track
+  await _music.setAsset(path, preload: true);
+  _music.setLoopMode(LoopMode.one);
+  await _music.play();
 
-## Game Rules
+  // fade in to appropriate volume
+  await _fadeTo(_volumeForBoss(b.id), const Duration(milliseconds: 400));
+}
+```
 
-- Players have **30 seconds** to choose cards each turn.
-- Boss HP increases by 1 each time they are defeated.
-- **Combat Mechanics:**
-  - Attack cards deal damage equal to their power.
-  - If both player and boss use Atk cards of equal power, attacks are nullified (parry).
-  - If Atk power exceeds Def power, excess damage is applied.
-- Consumables can be used **before combat starts**.
+*Boss tracks are mapped in `_trackByBossId`:*
 
----
+```dart
+static const Map<String, String> _trackByBossId = {
+  'boss_plub': 'assets/song/Plub_theme.mp3',
+  'boss_confirm': 'assets/song/Con_theme.mp3',
+  'boss_tew': 'assets/song/Tew_theme.mp3',
+  'boss_party': 'assets/song/Party_theme.mp3',
+};
+```
 
-## Winning & Losing
-
-- **Win:** defeat all 4 bosses  
-- **Lose:** HP reaches 0
+*Volume is managed per boss with `_volumeForBoss()`.*
 
 ---
 
-## Notes
+## 3. Challenge
 
-- Bosses and players select cards in the same way, but only players can use consumables.
-- Strategic use of Def and Atk cards is key to surviving and defeating bosses.
+As an extra exercise, try **adding a draw card sound** using the same `_music` player pattern:
 
-# Read More
+* Place a `draw.mp3` in `assets/sounds/`
+* Map it in a helper like `_trackByAction`
+* Play it whenever a card is drawn, optionally with a small fade-in/out
 
-## [📝 Development Plan (Deliverable)](md/deliverable.md)
-> Step-by-step plan for building CAMT Terminator in 5 days.
+This encourages understanding **how to extend just_audio for multiple game events**.
 
-## [🏗️ System Architecture](md/sa.md)
-> Overview of Cubit/Bloc layers, data structures, and project layout.
+---
 
-## [✨ New Features & Integration](md/new_features.md)
-> How Rive animations and just_audio integrate with Cubit, UI, and combat.
+## Notes / Tips
 
-## [🎬 Feature Flow Diagram](md/sa_diagram.md)
-> Visual Mermaid diagram of the game flow including new features.
+* `_music` is reused for all boss tracks to save resources
+* `_fadeTo()` helps smooth transitions between tracks
+* You can adapt the same pattern to other game sounds (e.g., card draw, attack, heal)
