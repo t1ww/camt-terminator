@@ -97,14 +97,55 @@ class _CombatScreenState extends State<CombatScreen> {
                   ),
                 ),
 
-                // Boss area (reactive)
+                /// Boss area (reactive & clickable)
                 ValueListenableBuilder<Boss?>(
                   valueListenable: GameCubit.I.bossNotifier,
                   builder: (context, Boss? boss, _) {
                     if (boss == null) return const SizedBox.shrink();
-                    return BossWidget(boss: boss);
+
+                    return ValueListenableBuilder<List<Card>>(
+                      valueListenable: CardCubit.I.selectedCardsNotifier,
+                      builder: (context, selected, __) {
+                        final isReadyToAttack = selected.length == 3;
+
+                        return GestureDetector(
+                          onTap: isReadyToAttack
+                              ? () {
+                                  final player =
+                                      GameCubit.I.playerNotifier.value!;
+                                  CardCubit.I.playSelectedCards(
+                                    player: player,
+                                    boss: boss,
+                                  );
+                                }
+                              : null,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              BossWidget(boss: boss),
+                              if (isReadyToAttack)
+                                Positioned.fill(
+                                  child: Container(
+                                    color: Colors.red.withValues(alpha: 0.5),
+                                    alignment: Alignment.center,
+                                    child: const Text(
+                                      'Attack',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
                   },
                 ),
+
                 const SizedBox(height: 16),
 
                 // ----- Middle row: 3 empty slots (UI only) -----
