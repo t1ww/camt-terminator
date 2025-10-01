@@ -31,7 +31,7 @@ class GameCubit {
   }
 
   // ==== Volume state ====
-  double _userVolume = 0.35; // 50% at start
+  double _userVolume = 0.35; // 35% base default
   bool _muted = false;
 
   double get volume => _userVolume;
@@ -64,7 +64,7 @@ class GameCubit {
     final path = _trackByBossId[boss.id];
     if (path != null) {
       _music.setLoopMode(LoopMode.one);
-      _music.setVolume(_muted ? 0.0 : _userVolume);
+      _music.setVolume(_muted ? 0.0 : _volumeForBoss(boss.id));
 
       _music.setAsset(path);
       _music.play();
@@ -134,7 +134,7 @@ class GameCubit {
     await _music.setAsset(path, preload: true);
     await _music.play();
     await _fadeTo(
-      _muted ? 0.0 : _userVolume,
+      _muted ? 0.0 : _volumeForBoss(b.id),
       const Duration(milliseconds: 400),
     );
   }
@@ -155,6 +155,18 @@ class GameCubit {
       ..addAll(allBosses);
     _bossPool.shuffle();
     player = Player();
+  }
+
+  // Helper: choose special volume if set
+  double _volumeForBoss(String bossId) {
+    switch (bossId) {
+      case 'boss_party':
+        return 0.40;
+      case 'boss_plub':
+        return 0.33;
+      default:
+        return _userVolume;
+    }
   }
 
   final AudioPlayer _music = AudioPlayer();
