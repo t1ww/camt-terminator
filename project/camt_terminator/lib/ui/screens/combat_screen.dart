@@ -1,7 +1,9 @@
 // lib/ui/screens/combat_screen.dart
 import 'package:camt_terminator/models/boss_model.dart';
+import 'package:camt_terminator/models/card_model.dart';
+import 'package:camt_terminator/models/deck_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Card;
 
 import 'package:camt_terminator/cubit/game_cubit.dart';
 import '../../cubit/card_cubit.dart';
@@ -64,17 +66,24 @@ class _CombatScreenState extends State<CombatScreen> {
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        'Turn: ${CardCubit.I.turn}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
+                      // Turn count (reactive)
+                      ValueListenableBuilder<int>(
+                        valueListenable: CardCubit.I.turnNotifier,
+                        builder: (_, int turn, __) {
+                          return Text(
+                            'Turn: $turn',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          );
+                        },
                       ),
                       const Spacer(),
+                      // Round info
                       ValueListenableBuilder<int>(
                         valueListenable: GameCubit.I.bossKillsNotifier,
-                        builder: (_, bossKills, __) {
+                        builder: (_, int bossKills, __) {
                           return Text(
                             'Round: ${bossKills + 1} / 4',
                             style: const TextStyle(
@@ -87,10 +96,11 @@ class _CombatScreenState extends State<CombatScreen> {
                     ],
                   ),
                 ),
-                // Boss area
+
+                // Boss area (reactive)
                 ValueListenableBuilder<Boss?>(
                   valueListenable: GameCubit.I.bossNotifier,
-                  builder: (context, boss, _) {
+                  builder: (context, Boss? boss, _) {
                     if (boss == null) return const SizedBox.shrink();
                     return BossWidget(boss: boss);
                   },
@@ -112,6 +122,7 @@ class _CombatScreenState extends State<CombatScreen> {
                 ),
 
                 const Spacer(),
+
                 // ----- Middle row: 3 empty slots (UI only) -----
                 Padding(
                   padding: const EdgeInsets.only(bottom: 0),
@@ -128,33 +139,39 @@ class _CombatScreenState extends State<CombatScreen> {
                     ),
                   ),
                 ),
+
                 // Player character area (+ HP bar)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: ValueListenableBuilder<Player?>(
                     valueListenable: GameCubit.I.playerNotifier,
-                    builder: (context, player, _) {
+                    builder: (context, Player? player, _) {
                       if (player == null) return const SizedBox.shrink();
                       return PlayerWidget(player: player);
                     },
                   ),
                 ),
 
-                // Player hand (bottom)
+                // Player hand (reactive)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Center(
-                    child: Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      alignment: WrapAlignment.center,
-                      children: List.generate(5, (index) {
-                        if (index < CardCubit.I.hand.length) {
-                          return CardWidget(card: CardCubit.I.hand[index]);
-                        } else {
-                          return const EmptyCardWidget();
-                        }
-                      }),
+                    child: ValueListenableBuilder<List<Card>>(
+                      valueListenable: CardCubit.I.handNotifier,
+                      builder: (context, List<Card> hand, _) {
+                        return Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          alignment: WrapAlignment.center,
+                          children: List.generate(5, (index) {
+                            if (index < hand.length) {
+                              return CardWidget(card: hand[index]);
+                            } else {
+                              return const EmptyCardWidget();
+                            }
+                          }),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -171,11 +188,16 @@ class _CombatScreenState extends State<CombatScreen> {
                   right: 0,
                   top: 300,
                 ), // Add top to push deck down
-                child: DeckWidget(
-                  deck: CardCubit.I.deck,
-                  onTap: () {
-                    // Update ui
-                    setState(() {});
+                child: ValueListenableBuilder<Deck>(
+                  valueListenable: CardCubit.I.deckNotifier,
+                  builder: (context, Deck deck, _) {
+                    return DeckWidget(
+                      deck: deck,
+                      onTap: () {
+                        // Draw cards and notify UI automatically
+                        CardCubit.I.drawCards();
+                      },
+                    );
                   },
                 ),
               ),

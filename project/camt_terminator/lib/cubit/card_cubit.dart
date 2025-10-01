@@ -1,8 +1,9 @@
-// project\camt_terminator\lib\cubit\card_cubit.dart
+// lib/cubit/card_cubit.dart
 import 'package:camt_terminator/models/card_model.dart';
 import 'package:camt_terminator/models/deck_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
 import 'package:camt_terminator/models/boss_model.dart';
+import 'package:flutter/material.dart' hide Card;
 import '../../data/deck_data.dart';
 import '../services/combat_resolver.dart';
 
@@ -11,35 +12,42 @@ import '../services/combat_resolver.dart';
 /// - Turn count
 /// - Selected cards (up to 3 for player)
 /// - Drawing, resetting, and playing cards
+///
+/// Fully reactive using ValueNotifier for UI updates
 class CardCubit {
-  // Singleton
+  // Singleton pattern
   CardCubit._();
   static final CardCubit I = CardCubit._();
 
-  // Active deck (shuffled)
+  // ===== Reactive State =====
+  /// Current hand of drawn cards
+  final ValueNotifier<List<Card>> handNotifier = ValueNotifier([]);
+
+  /// Currently selected cards (max 3)
+  final ValueNotifier<List<Card>> selectedCardsNotifier = ValueNotifier([]);
+
+  /// Active deck (shuffled)
+  final ValueNotifier<Deck> deckNotifier = ValueNotifier(initializeDeck());
+
+  /// Tracks current turn number
+  final ValueNotifier<int> turnNotifier = ValueNotifier(1);
+
+  // ===== Internal State =====
   late Deck deck;
 
-  // Tracks round number
-  int turn = 1;
-
-  // Current hand of drawn cards
-  List<Card> hand = [];
-
-  // Currently selected cards (max 3)
-  List<Card> selectedCards = [];
-
-  /// Init
+  /// Initialize deck and hand
   void init() {
     _resetDeck();
-    turn = 1;
-    hand = [];
-    selectedCards = [];
+    handNotifier.value = [];
+    selectedCardsNotifier.value = [];
+    turnNotifier.value = 1;
   }
 
   /// Draw cards until hand has 5
+  /// Optional exclusion of certain cards
   void drawCards({List<Card> exclude = const []}) {
     const maxHandSize = 5;
-    final toDraw = maxHandSize - hand.length;
+    final toDraw = maxHandSize - handNotifier.value.length;
     if (toDraw <= 0) return;
 
     var drawn = deck
@@ -47,7 +55,7 @@ class CardCubit {
         .where((c) => !exclude.contains(c))
         .toList();
 
-    // If deck is empty but discard pile has cards, recycle
+    // If deck is empty but discard has cards, recycle
     if (drawn.isEmpty && deck.discardPile.isNotEmpty) {
       deck.resetDeck();
       drawn = deck
@@ -58,48 +66,70 @@ class CardCubit {
 
     if (drawn.isEmpty) return;
 
-    hand.addAll(drawn);
-    selectedCards = [];
-    turn++;
+    // Update hand and turn
+    final updatedHand = [...handNotifier.value, ...drawn];
+    handNotifier.value = updatedHand;
+    selectedCardsNotifier.value = [];
+    turnNotifier.value += 1;
+
+    // Reassign new Deck for UI update
+    deckNotifier.value = Deck(cards: [...deck.cards])
+      ..discardPile.addAll(deck.discardPile);
   }
 
-  /// Reset deck and hand
-  void reset() {
-    _resetDeck();
-    turn = 1;
-    hand = [];
-    selectedCards = [];
-  }
-
-  void _resetDeck() {
-    deck = initializeDeck();
-  }
-
-  /// Toggle card selection (adds if <3, removes if already selected)
+  /// Toggle selection of a card (max 3)
   void toggleCardSelection(Card card) {
-    if (selectedCards.contains(card)) {
-      selectedCards.remove(card);
-    } else if (selectedCards.length < 3) {
-      selectedCards.add(card);
+    final selected = [...selectedCardsNotifier.value];
+    if (selected.contains(card)) {
+      selected.remove(card);
+    } else if (selected.length < 3) {
+      selected.add(card);
     }
+    selectedCardsNotifier.value = selected;
   }
 
   /// Play selected cards against boss and clear selection
   void playSelectedCards({required Player player, required Boss boss}) {
+    final selected = [...selectedCardsNotifier.value];
+
+    // Boss plays cards
     final bossPlayedCards = boss.playCards();
 
+    // Resolve combat round
     CombatResolver.resolveRound(
-      playerCards: selectedCards,
+      playerCards: selected,
       bossCards: bossPlayedCards,
       player: player,
       boss: boss,
     );
 
-    // Move played cards into discard pile
-    deck.discard(selectedCards);
+    // Move played cards to discard pile
+    deck.discard(selected);
 
     // Remove played cards from hand
-    hand.removeWhere((c) => selectedCards.contains(c));
-    selectedCards = [];
+    final updatedHand = handNotifier.value
+        .where((c) => !selected.contains(c))
+        .toList();
+    handNotifier.value = updatedHand;
+
+    // Clear selected cards
+    selectedCardsNotifier.value = [];
+
+    // Update deck for UI
+    deckNotifier.value = deck;
+  }
+
+  /// Reset deck to initial state
+  void _resetDeck() {
+    deck = initializeDeck();
+    deckNotifier.value = deck;
+  }
+
+  /// Fully reset all state
+  void reset() {
+    _resetDeck();
+    handNotifier.value = [];
+    selectedCardsNotifier.value = [];
+    turnNotifier.value = 1;
   }
 }

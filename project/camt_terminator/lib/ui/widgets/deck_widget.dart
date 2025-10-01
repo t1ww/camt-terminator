@@ -21,48 +21,52 @@ class DeckWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Text('Deck', style: TextStyle(color: Colors.white)),
-        const SizedBox(height: 4),
-        GestureDetector(
-          onTap: deckDraw, // <-- call when tapped
-          child: Container(
-            width: deckWidth,
-            height: deckHeight,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.white24, width: 1.5),
-            ),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                // Deck background image
-                Image.asset(deckAsset, fit: BoxFit.cover),
-                // Card count overlay
-                Positioned(
-                  top: 4,
-                  right: 4,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      '${deck.cards.length}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+    return ValueListenableBuilder<Deck>(
+      valueListenable: CardCubit.I.deckNotifier,
+      builder: (context, deck, _) {
+        return Column(
+          children: [
+            const Text('Deck', style: TextStyle(color: Colors.white)),
+            const SizedBox(height: 4),
+            GestureDetector(
+              onTap: deckDraw,
+              child: Container(
+                width: deckWidth,
+                height: deckHeight,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.white24, width: 1.5),
+                ),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.asset(deckAsset, fit: BoxFit.cover),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '${deck.cards.length}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
+
