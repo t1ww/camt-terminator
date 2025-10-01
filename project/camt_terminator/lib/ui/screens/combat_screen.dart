@@ -99,15 +99,14 @@ class _CombatScreenState extends State<CombatScreen> {
                 ),
 
                 /// Boss area (reactive & clickable)
-                ValueListenableBuilder<Boss?>(
-                  valueListenable: GameCubit.I.bossNotifier,
-                  builder: (context, Boss? boss, _) {
-                    if (boss == null) return const SizedBox.shrink();
-
-                    return ValueListenableBuilder<List<Card>>(
-                      valueListenable: CardCubit.I.selectedCardsNotifier,
-                      builder: (context, selected, __) {
-                        final isReadyToAttack = selected.length == 3;
+                ValueListenableBuilder<List<Card>>(
+                  valueListenable: CardCubit.I.selectedCardsNotifier,
+                  builder: (context, selected, __) {
+                    return ValueListenableBuilder<bool>(
+                      valueListenable: CardCubit.I.isResolvingNotifier,
+                      builder: (context, resolving, __) {
+                        final isReadyToAttack =
+                            selected.length == 3 && !resolving;
 
                         return GestureDetector(
                           onTap: isReadyToAttack
@@ -116,18 +115,18 @@ class _CombatScreenState extends State<CombatScreen> {
                                       GameCubit.I.playerNotifier.value!;
                                   CardCubit.I.playSelectedCards(
                                     player: player,
-                                    boss: boss,
+                                    boss: GameCubit.I.boss,
                                   );
                                 }
                               : null,
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              BossWidget(boss: boss),
+                              BossWidget(boss: GameCubit.I.boss),
                               if (isReadyToAttack)
                                 Positioned.fill(
                                   child: Container(
-                                    color: Colors.red.withValues(alpha: 0.5),
+                                    color: Colors.red.withOpacity(0.5),
                                     alignment: Alignment.center,
                                     child: const Text(
                                       'Attack',

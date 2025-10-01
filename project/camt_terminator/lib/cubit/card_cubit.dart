@@ -39,6 +39,9 @@ class CardCubit {
   late Deck deck;
   bool shuffledByConfirm = false;
 
+  final ValueNotifier<bool> isResolvingNotifier = ValueNotifier(false);
+  bool get isResolving => isResolvingNotifier.value;
+
   /// Initialize deck and hand
   void init() {
     _resetDeck();
@@ -98,6 +101,9 @@ class CardCubit {
   }) async {
     final selected = [...selectedCardsNotifier.value];
 
+    // Lock
+    isResolvingNotifier.value = true;
+
     // Boss draws first
     boss.drawCards();
 
@@ -136,6 +142,9 @@ class CardCubit {
 
     // Update deck for UI
     deckNotifier.value = deck;
+
+    // Unlock
+    isResolvingNotifier.value = false;
   }
 
   /// Reset deck to initial state
