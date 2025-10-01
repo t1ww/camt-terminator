@@ -1,4 +1,6 @@
 // project\camt_terminator\lib\services\combat_resolver.dart
+import 'dart:math';
+
 import '../models/card_model.dart';
 import '../models/player_model.dart';
 import '../models/boss_model.dart';
@@ -27,17 +29,20 @@ class CombatResolver {
         if (playerCard.power == bossCard.power) {
           // Parry: no damage
           continue;
+        } else {
+          boss.takeDamage(playerCard.power);
+          player.takeDamage(bossCard.power);
         }
       }
       // Player attack, boss defense
       else if (playerCard is AttackCard && bossCard is DefenseCard) {
-        final damage = playerCard.power - bossCard.power;
-        if (damage > 0) boss.takeDamage(damage);
+        final damage = max(playerCard.power - bossCard.power, 1);
+        boss.takeDamage(damage);
       }
       // Boss attack, player defense
       else if (playerCard is DefenseCard && bossCard is AttackCard) {
-        final damage = bossCard.power - playerCard.power;
-        if (damage > 0) player.takeDamage(damage);
+        final damage = max(bossCard.power - playerCard.power, 1);
+        player.takeDamage(damage);
       }
       // Has special card
       else {

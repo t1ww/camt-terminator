@@ -70,11 +70,10 @@ class CardCubit {
 
     if (drawn.isEmpty) return;
 
-    // Update hand and turn
+    // Update hand
     final updatedHand = [...handNotifier.value, ...drawn];
     handNotifier.value = updatedHand;
     selectedCardsNotifier.value = [];
-    turnNotifier.value += 1;
 
     // Reassign new Deck for UI update
     deckNotifier.value = Deck(cards: [...deck.cards])
@@ -132,6 +131,9 @@ class CardCubit {
     // Clear boss preview after combat
     bossPlayedNotifier.value = [];
 
+    // Next turn
+    turnNotifier.value += 1;
+
     // Update deck for UI
     deckNotifier.value = deck;
   }
@@ -147,6 +149,6 @@ class CardCubit {
     _resetDeck();
     handNotifier.value = [];
     selectedCardsNotifier.value = [];
-    turnNotifier.value = 0;
+    turnNotifier.value = 1;
   }
 }
