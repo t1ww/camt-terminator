@@ -27,10 +27,6 @@ class CombatResolver {
         if (playerCard.power == bossCard.power) {
           // Parry: no damage
           continue;
-        } else {
-          // Both take damage
-          player.takeDamage(bossCard.power);
-          boss.takeDamage(playerCard.power);
         }
       }
       // Player attack, boss defense
@@ -43,8 +39,10 @@ class CombatResolver {
         final damage = bossCard.power - playerCard.power;
         if (damage > 0) player.takeDamage(damage);
       }
-      // Other special cards
+      // Has special card
       else {
+        if (bossCard is AttackCard) player.takeDamage(bossCard.power);
+        if (playerCard is AttackCard) boss.takeDamage(playerCard.power);
         if (playerCard != null) _resolveSpecial(playerCard, player, boss);
         if (bossCard != null) _resolveSpecial(bossCard, player, boss);
       }

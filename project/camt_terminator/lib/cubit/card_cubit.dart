@@ -1,4 +1,5 @@
 // lib/cubit/card_cubit.dart
+import 'package:camt_terminator/cubit/game_cubit.dart';
 import 'package:camt_terminator/models/card_model.dart';
 import 'package:camt_terminator/models/deck_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
@@ -106,6 +107,7 @@ class CardCubit {
 
     // Move played cards to discard pile
     deck.discard(selected);
+    deck.discard(bossPlayedCards);
 
     // Remove played cards from hand
     final updatedHand = handNotifier.value
@@ -115,6 +117,9 @@ class CardCubit {
 
     // Clear selected cards
     selectedCardsNotifier.value = [];
+
+    // Draw new hand for boss
+    GameCubit.I.boss.drawCards();
 
     // Update deck for UI
     deckNotifier.value = deck;

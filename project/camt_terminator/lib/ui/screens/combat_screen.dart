@@ -26,6 +26,7 @@ class _CombatScreenState extends State<CombatScreen> {
     super.initState();
     GameCubit.I.startCombat();
     CardCubit.I.reset();
+    GameCubit.I.boss.drawCards();
   }
 
   @override

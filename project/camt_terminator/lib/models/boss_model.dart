@@ -31,11 +31,11 @@ abstract class Boss {
     this.maxPlayingCardsPerTurn = 3,
   });
 
-  void drawCards(CardCubit cardCubit, {List<Card> exclude = const []}) {
+  void drawCards({List<Card> exclude = const []}) {
     final toDraw = maxHandsPerTurn - currentHand.length;
     if (toDraw <= 0) return;
 
-    final drawn = cardCubit.deck
+    final drawn = CardCubit.I.deck
         .draw(toDraw, includeConsumables: false)
         .where((c) => !exclude.contains(c))
         .toList();
