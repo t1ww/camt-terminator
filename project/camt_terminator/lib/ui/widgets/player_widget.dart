@@ -5,7 +5,7 @@ import 'hpBar_widget.dart';
 
 class PlayerWidget extends StatelessWidget {
   final Player player;
-  const PlayerWidget({required this.player});
+  const PlayerWidget({super.key, required this.player});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +13,7 @@ class PlayerWidget extends StatelessWidget {
       children: [
         Image.asset('assets/images/player.png', width: 96, height: 96),
         const SizedBox(height: 4),
-        HPBarWidget(current: player.hp.toInt(), max: player.maxHp.toInt()),
+        HPBarWidget(current: player.hp.value, max: player.maxHp.toInt()),
       ],
     );
   }

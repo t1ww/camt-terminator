@@ -1,13 +1,14 @@
 // project\camt_terminator\lib\data\boss_data.dart
 import 'package:camt_terminator/models/boss_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
+import 'package:flutter/material.dart';
 
 class PlubBoss extends Boss {
   PlubBoss()
       : super(
           id: "boss_plub",
           name: "Plub",
-          hp: 26,
+          hp: ValueNotifier(26),
           maxHp: 26,
           weapon: "Tarot cards",
           ability: "Copy player's playing cards every 5 turns and play them",
@@ -15,7 +16,7 @@ class PlubBoss extends Boss {
 
   @override
   void useAbility(Player player) {
-    // Example ability: copy last 3 cards from player's hand
+    // Ability: Copy the 3 playing cards from player's hand
     final copied = player.hand.take(3).toList();
     currentHand.addAll(copied);
   }
@@ -26,7 +27,7 @@ class ConfirmBoss extends Boss {
       : super(
           id: "boss_confirm",
           name: "Confirm",
-          hp: 23,
+          hp: ValueNotifier(23),
           maxHp: 23,
           weapon: "Pencil",
           ability: "Shuffle player's playing hand",
@@ -34,9 +35,7 @@ class ConfirmBoss extends Boss {
 
   @override
   void useAbility(Player player) {
-    // Example ability: just heals itself a bit
-    hp += 5;
-    if (hp > maxHp) hp = maxHp;
+    // Shuffle player's playing hand when play
   }
 }
 
@@ -45,7 +44,7 @@ class TewBoss extends Boss {
       : super(
           id: "boss_tew",
           name: "Tew",
-          hp: 20,
+          hp: ValueNotifier(20),
           maxHp: 20,
           weapon: "Longbow",
           ability: "Play attack cards twice",
@@ -54,8 +53,8 @@ class TewBoss extends Boss {
   @override
   void useAbility(Player player) {
     // Example ability: just heals itself a bit
-    hp += 5;
-    if (hp > maxHp) hp = maxHp;
+    hp.value += 5;
+    if (hp.value > maxHp) hp.value = maxHp;
   }
 }
 
@@ -64,7 +63,7 @@ class PartyBoss extends Boss {
       : super(
           id: "boss_party",
           name: "Party",
-          hp: 29,
+          hp: ValueNotifier(29),
           maxHp: 29,
           weapon: "Hammer",
           ability: "Play 4 cards",

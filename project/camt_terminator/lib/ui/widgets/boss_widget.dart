@@ -9,21 +9,24 @@ class BossWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Map boss IDs to image assets
     final assetMap = {
       'boss_plub': 'assets/images/boss1.png',
       'boss_confirm': 'assets/images/boss2.png',
       'boss_tew': 'assets/images/boss3.png',
       'boss_party': 'assets/images/boss4.png',
     };
-
     final asset = assetMap[boss.id] ?? 'assets/images/boss1.png';
 
     return Column(
       children: [
         Image.asset(asset, width: 96, height: 96),
         const SizedBox(height: 4),
-        HPBarWidget(current: boss.hp, max: boss.maxHp),
+        ValueListenableBuilder<int>(
+          valueListenable: boss.hp,
+          builder: (_, currentHp, __) {
+            return HPBarWidget(current: currentHp, max: boss.maxHp);
+          },
+        ),
       ],
     );
   }

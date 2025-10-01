@@ -143,7 +143,7 @@ class _SpaceBackground extends StatelessWidget {
                 gradient: RadialGradient(
                   center: Alignment.topCenter,
                   radius: 1.2,
-                  colors: [Colors.white.withOpacity(0.06), Colors.transparent],
+                  colors: [Colors.white.withValues(alpha: .06), Colors.transparent],
                 ),
               ),
             ),

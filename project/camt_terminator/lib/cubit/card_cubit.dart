@@ -34,6 +34,7 @@ class CardCubit {
 
   // ===== Internal State =====
   late Deck deck;
+  bool shuffledByConfirm = false;
 
   /// Initialize deck and hand
   void init() {

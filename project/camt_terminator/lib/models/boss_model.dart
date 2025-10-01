@@ -4,11 +4,12 @@ import 'dart:math';
 import 'package:camt_terminator/models/card_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
 import 'package:camt_terminator/cubit/card_cubit.dart';
+import 'package:flutter/material.dart' hide Card;
 
 abstract class Boss {
   final String id;
   final String name;
-  int hp;
+  final ValueNotifier<int> hp;  // reactive hp
   final int maxHp;
   final String weapon;
   final String ability;
@@ -64,11 +65,10 @@ abstract class Boss {
   void useAbility(Player player);
 
   void takeDamage(int damage) {
-    hp -= damage;
-    if (hp < 0) hp = 0;
+    hp.value = max(hp.value - damage, 0);
   }
 
   void resetHp() {
-    hp = maxHp;
+    hp.value = maxHp;
   }
 }

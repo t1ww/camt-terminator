@@ -1,15 +1,16 @@
 // project\camt_terminator\lib\models\player_model.dart
+import 'dart:math';
+
 import 'package:camt_terminator/models/card_model.dart';
+import 'package:flutter/material.dart' hide Card;
 
 class Player {
-  num hp = 50;
+  ValueNotifier<int> hp = ValueNotifier(50);
   List<Card> hand = [];
   List<Card> deck = [];
+  int get maxHp => 50;
 
-  num get maxHp => 50;
-  
-  void takeDamage(num damage) {
-    hp -= damage;
-    if (hp < 0) hp = 0;
+  void takeDamage(int damage) {
+    hp.value = max(hp.value - damage, 0);
   }
 }

@@ -1,10 +1,12 @@
 // lib/widgets/hpBar_widget.dart
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 class HPBarWidget extends StatelessWidget {
   final int current;
   final int max;
-  const HPBarWidget({required this.current, required this.max});
+  const HPBarWidget({super.key, required this.current, required this.max});
 
   @override
   Widget build(BuildContext context) {
