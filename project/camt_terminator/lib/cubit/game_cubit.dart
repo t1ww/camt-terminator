@@ -30,6 +30,23 @@ class GameCubit {
     return _bossKills + 1;
   }
 
+  // ==== Volume state ====
+  double _userVolume = 0.35; // 50% at start
+  bool _muted = false;
+
+  double get volume => _userVolume;
+  bool get muted => _muted;
+
+  void setVolume(double v) {
+    _userVolume = v.clamp(0.0, 1.0);
+    _music.setVolume(_muted ? 0.0 : _userVolume);
+  }
+
+  void toggleMute() {
+    _muted = !_muted;
+    _music.setVolume(_muted ? 0.0 : _userVolume);
+  }
+
   /// Start combat with a new player and first boss
   Future<void> startCombat({Player? initPlayer}) async {
     _phase = GamePhase.bossSummoned;
@@ -47,7 +64,7 @@ class GameCubit {
     final path = _trackByBossId[boss.id];
     if (path != null) {
       _music.setLoopMode(LoopMode.one);
-      _music.setVolume(1.0);
+      _music.setVolume(_muted ? 0.0 : _userVolume);
 
       _music.setAsset(path);
       _music.play();
@@ -94,7 +111,7 @@ class GameCubit {
     final session = await AudioSession.instance;
     await session.configure(const AudioSessionConfiguration.music());
     await _music.setLoopMode(LoopMode.one);
-    await _music.setVolume(1.0);
+    await _music.setVolume(_muted ? 0.0 : _userVolume);
     _musicReady = true;
   }
 
@@ -116,7 +133,10 @@ class GameCubit {
     await _fadeTo(0.0, const Duration(milliseconds: 400));
     await _music.setAsset(path, preload: true);
     await _music.play();
-    await _fadeTo(1.0, const Duration(milliseconds: 400));
+    await _fadeTo(
+      _muted ? 0.0 : _userVolume,
+      const Duration(milliseconds: 400),
+    );
   }
 
   Future<void> _stopMusic() async {
