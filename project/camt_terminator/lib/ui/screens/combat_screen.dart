@@ -77,12 +77,18 @@ class _CombatScreenState extends State<CombatScreen> {
                       const SizedBox(width: 4),
                       Text(
                         'Turn: ${CardCubit.I.turn}',
-                        style: const TextStyle(color: Colors.white, fontSize: 18),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
                       ),
                       const Spacer(),
                       Text(
                         'Round: ${GameCubit.I.getRound()} / 4',
-                        style: const TextStyle(color: Colors.white, fontSize: 18),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
                       ),
                       const SizedBox(width: 40),
                     ],
@@ -101,11 +107,11 @@ class _CombatScreenState extends State<CombatScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
-                      _EmptySlot(),
+                      _EmptySlot(isBoss: true),
                       SizedBox(width: 12),
-                      _EmptySlot(),
+                      _EmptySlot(isBoss: true),
                       SizedBox(width: 12),
-                      _EmptySlot(),
+                      _EmptySlot(isBoss: true),
                     ],
                   ),
                 ),
@@ -116,6 +122,22 @@ class _CombatScreenState extends State<CombatScreen> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: PlayerWidget(player: _player),
+                ),
+                // ----- Middle row: 3 empty slots (UI only) -----
+                Padding(
+                  padding: const EdgeInsets.only(top: 40), // push down
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        _EmptySlot(), // default false → cardEmpty.png
+                        SizedBox(width: 12),
+                        _EmptySlot(),
+                        SizedBox(width: 12),
+                        _EmptySlot(),
+                      ],
+                    ),
+                  ),
                 ),
 
                 // Player hand (bottom)
@@ -153,16 +175,16 @@ class _CombatScreenState extends State<CombatScreen> {
             child: Align(
               alignment: Alignment.centerRight,
               child: Padding(
-                padding: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsets.only(
+                  right: 12,
+                  top: 100,
+                ), // add top to push deck down
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
                     setState(() => CardCubit.I.drawCards());
                   },
-                  child: DeckWidget(
-                    deck: CardCubit.I.deck,
-                    onTap: null, // we handle tap via GestureDetector
-                  ),
+                  child: DeckWidget(deck: CardCubit.I.deck, onTap: null),
                 ),
               ),
             ),
@@ -176,18 +198,17 @@ class _CombatScreenState extends State<CombatScreen> {
 /* ================= Helper UI ================= */
 
 class _EmptySlot extends StatelessWidget {
-  const _EmptySlot();
+  final bool isBoss; // true for boss side slot, false for player side slot
+  const _EmptySlot({this.isBoss = false});
 
   @override
   Widget build(BuildContext context) {
-    // White card placeholder with black border (like your mock)
-    return Container(
+    return SizedBox(
       width: 80,
       height: 110,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.black, width: 3),
+      child: Image.asset(
+        isBoss ? 'assets/images/deck.png' : 'assets/images/cardEmpty.png',
+        fit: BoxFit.contain,
       ),
     );
   }
