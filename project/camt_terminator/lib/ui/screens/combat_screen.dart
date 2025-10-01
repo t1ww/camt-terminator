@@ -123,19 +123,24 @@ class _CombatScreenState extends State<CombatScreen> {
 
                 const Spacer(),
 
-                // ----- Middle row: 3 empty slots (UI only) -----
+                // ----- Selected cards -----
                 Padding(
                   padding: const EdgeInsets.only(bottom: 0),
                   child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        EmptyCardWidget(),
-                        SizedBox(width: 12),
-                        EmptyCardWidget(),
-                        SizedBox(width: 12),
-                        EmptyCardWidget(),
-                      ],
+                    child: ValueListenableBuilder<List<Card>>(
+                      valueListenable: CardCubit.I.selectedCardsNotifier,
+                      builder: (context, List<Card> selected, _) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(3, (index) {
+                            if (index < selected.length) {
+                              return CardWidget(card: selected[index]);
+                            } else {
+                              return const EmptyCardWidget();
+                            }
+                          }),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -152,24 +157,51 @@ class _CombatScreenState extends State<CombatScreen> {
                   ),
                 ),
 
-                // Player hand (reactive)
+                // ----- Player hand ----- (reactive)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Center(
                     child: ValueListenableBuilder<List<Card>>(
                       valueListenable: CardCubit.I.handNotifier,
                       builder: (context, List<Card> hand, _) {
-                        return Wrap(
-                          spacing: 12,
-                          runSpacing: 12,
-                          alignment: WrapAlignment.center,
-                          children: List.generate(5, (index) {
-                            if (index < hand.length) {
-                              return CardWidget(card: hand[index]);
-                            } else {
-                              return const EmptyCardWidget();
-                            }
-                          }),
+                        return ValueListenableBuilder<List<Card>>(
+                          valueListenable: CardCubit.I.selectedCardsNotifier,
+                          builder: (context, List<Card> selected, __) {
+                            return Wrap(
+                              spacing: 12,
+                              runSpacing: 12,
+                              alignment: WrapAlignment.center,
+                              children: List.generate(5, (index) {
+                                if (index < hand.length) {
+                                  final card = hand[index];
+                                  final isSelected = selected.contains(card);
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      CardCubit.I.toggleCardSelection(card);
+                                    },
+                                    child: Stack(
+                                      children: [
+                                        CardWidget(card: card),
+                                        if (isSelected)
+                                          Positioned.fill(
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.yellow.withValues(
+                                                  alpha: 0.3,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  );
+                                } else {
+                                  return const EmptyCardWidget();
+                                }
+                              }),
+                            );
+                          },
                         );
                       },
                     ),
