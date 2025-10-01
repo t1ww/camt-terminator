@@ -19,15 +19,40 @@ class HPBarWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.white, width: 1),
       ),
-      child: FractionallySizedBox(
-        alignment: Alignment.centerLeft,
-        widthFactor: ratio,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.greenAccent.shade400,
-            borderRadius: BorderRadius.circular(8),
+      child: Stack(
+        alignment: Alignment.center, // <-- center text by default
+        children: [
+          // Green fill (left-aligned)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: ratio.clamp(0.0, 1.0), // prevent overflow
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.greenAccent.shade400,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
           ),
-        ),
+          // Centered HP text
+          Text(
+            "$current / $max",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              shadows: [
+                Shadow(
+                  offset: Offset(1, 1),
+                  blurRadius: 2,
+                  color: Colors.black,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

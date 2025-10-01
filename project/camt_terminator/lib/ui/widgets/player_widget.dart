@@ -9,14 +9,46 @@ class PlayerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(  
+    return Stack(
+      alignment: Alignment.center,
       children: [
-        Image.asset('assets/images/player.png', width: 96, height: 96),
-        const SizedBox(height: 4),
-        ValueListenableBuilder<int>(
-          valueListenable: player.hp,
-          builder: (_, currentHp, __) {
-            return HPBarWidget(current: currentHp, max: player.maxHp);
+        Column(
+          children: [
+            Image.asset('assets/images/player.png', width: 96, height: 96),
+            const SizedBox(height: 4),
+            // Hp bar
+            ValueListenableBuilder<int>(
+              valueListenable: player.hp,
+              builder: (_, currentHp, __) {
+                return HPBarWidget(current: currentHp, max: player.maxHp);
+              },
+            ),
+          ],
+        ),
+
+        // Floating damage overlay
+        ValueListenableBuilder<int?>(
+          valueListenable: player.lastDamage,
+          builder: (_, damage, __) {
+            if (damage == null) return const SizedBox.shrink();
+            return Positioned(
+              top: 0, // adjust if you want above the sprite
+              child: Text(
+                "-$damage",
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 4,
+                      offset: Offset(1, 1),
+                      color: Colors.black,
+                    ),
+                  ],
+                ),
+              ),
+            );
           },
         ),
       ],

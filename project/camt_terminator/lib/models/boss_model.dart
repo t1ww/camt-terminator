@@ -17,6 +17,8 @@ abstract class Boss {
   final int maxHandsPerTurn;
   final int maxPlayingCardsPerTurn;
 
+  ValueNotifier<int?> lastDamage = ValueNotifier(null);
+
   List<Card> currentHand = [];
 
   Boss({
@@ -66,6 +68,12 @@ abstract class Boss {
 
   void takeDamage(int damage) {
     hp.value = max(hp.value - damage, 0);
+    lastDamage.value = damage;
+
+    // Reset after short delay so animation can re-trigger
+    Future.delayed(const Duration(milliseconds: 800), () {
+      lastDamage.value = null;
+    });
   }
 
   void resetHp() {
