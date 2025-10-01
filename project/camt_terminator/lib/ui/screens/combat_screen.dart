@@ -1,5 +1,4 @@
 // lib/ui/screens/combat_screen.dart
-import 'package:camt_terminator/models/boss_model.dart';
 import 'package:camt_terminator/models/card_model.dart';
 import 'package:camt_terminator/models/deck_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
@@ -126,7 +125,7 @@ class _CombatScreenState extends State<CombatScreen> {
                               if (isReadyToAttack)
                                 Positioned.fill(
                                   child: Container(
-                                    color: Colors.red.withOpacity(0.5),
+                                    color: Colors.red.withValues(alpha: 0.5),
                                     alignment: Alignment.center,
                                     child: const Text(
                                       'Attack',
