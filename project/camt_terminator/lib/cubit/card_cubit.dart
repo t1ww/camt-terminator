@@ -44,7 +44,7 @@ class CardCubit {
     _resetDeck();
     handNotifier.value = [];
     selectedCardsNotifier.value = [];
-    turnNotifier.value = 1;
+    turnNotifier.value = 0;
   }
 
   /// Draw cards until hand has 5
@@ -147,6 +147,6 @@ class CardCubit {
     _resetDeck();
     handNotifier.value = [];
     selectedCardsNotifier.value = [];
-    turnNotifier.value = 1;
+    turnNotifier.value = 0;
   }
 }
