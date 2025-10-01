@@ -13,7 +13,12 @@ class PlayerWidget extends StatelessWidget {
       children: [
         Image.asset('assets/images/player.png', width: 96, height: 96),
         const SizedBox(height: 4),
-        HPBarWidget(current: player.hp.value, max: player.maxHp.toInt()),
+        ValueListenableBuilder<int>(
+          valueListenable: player.hp,
+          builder: (_, currentHp, __) {
+            return HPBarWidget(current: currentHp, max: player.maxHp);
+          },
+        ),
       ],
     );
   }
