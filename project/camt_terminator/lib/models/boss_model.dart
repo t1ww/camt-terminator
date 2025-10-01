@@ -9,7 +9,7 @@ import 'package:flutter/material.dart' hide Card;
 abstract class Boss {
   final String id;
   final String name;
-  final ValueNotifier<int> hp;  // reactive hp
+  final ValueNotifier<int> hp; // reactive hp
   final int maxHp;
   final String weapon;
   final String ability;
@@ -17,7 +17,7 @@ abstract class Boss {
   final int maxHandsPerTurn;
   final int maxPlayingCardsPerTurn;
 
-  ValueNotifier<int?> lastDamage = ValueNotifier(null);
+  final ValueNotifier<List<int>> damageEvents = ValueNotifier([]);
 
   List<Card> currentHand = [];
 
@@ -68,12 +68,15 @@ abstract class Boss {
 
   void takeDamage(int damage) {
     hp.value = max(hp.value - damage, 0);
-    lastDamage.value = damage;
+    damageEvents.value = [...damageEvents.value, damage];
 
-    // Reset after short delay so animation can re-trigger
     Future.delayed(const Duration(milliseconds: 800), () {
-      lastDamage.value = null;
+      clearDamageEvents();
     });
+  }
+
+  void clearDamageEvents() {
+    damageEvents.value = [];
   }
 
   void resetHp() {
