@@ -1,4 +1,5 @@
 // project\camt_terminator\lib\ui\widgets\dev_panel.dart
+import 'package:camt_terminator/cubit/game_cubit.dart';
 import 'package:flutter/material.dart';
 
 class DevPanel extends StatelessWidget {
@@ -23,6 +24,18 @@ class DevPanel extends StatelessWidget {
             child: const Text("Defeat Boss (Test)"),
           ),
           const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: () {
+              final player = GameCubit.I.playerNotifier.value!;
+
+              // Apply 10 damage
+              player.takeDamage(10);
+
+              // Log HP to console
+              print('Player HP: ${player.hp.value}');
+            },
+            child: const Text("Damage Player 10"),
+          ),
         ],
       ),
     );
