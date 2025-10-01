@@ -2,8 +2,10 @@
 import 'package:camt_terminator/models/boss_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
 import 'package:flutter/material.dart';
+
 import 'package:camt_terminator/cubit/game_cubit.dart';
 import '../../cubit/card_cubit.dart';
+
 import '../widgets/card_widget.dart';
 import '../widgets/player_widget.dart';
 import '../widgets/boss_widget.dart';
@@ -23,21 +25,16 @@ class _CombatScreenState extends State<CombatScreen> {
   @override
   void initState() {
     super.initState();
-
     GameCubit.I.startCombat();
     CardCubit.I.reset();
-
     _player = GameCubit.I.player;
     _boss = GameCubit.I.boss;
   }
 
   void _onBossDefeated() {
     final continued = GameCubit.I.onBossDefeated(context);
-    if (!continued) return; // Game ended, navigation handled
-
-    setState(() {
-      _boss = GameCubit.I.boss;
-    });
+    if (!continued) return;
+    setState(() => _boss = GameCubit.I.boss);
   }
 
   @override
@@ -49,50 +46,83 @@ class _CombatScreenState extends State<CombatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/combat_background.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Top Bar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  Text(
-                    "Turn: ${CardCubit.I.turn}",
-                    style: const TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  Text(
-                    "Round: ${GameCubit.I.getRound()} / 4",
-                    style: const TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  const SizedBox(width: 48),
-                ],
+      body: Stack(
+        children: [
+          // Background
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/combat_background.png'),
+                  fit: BoxFit.cover,
+                ),
               ),
+            ),
+          ),
 
-              const SizedBox(height: 16),
+          // Main column content
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Top bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Turn: ${CardCubit.I.turn}',
+                        style: const TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      const Spacer(),
+                      Text(
+                        'Round: ${GameCubit.I.getRound()} / 4',
+                        style: const TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      const SizedBox(width: 40),
+                    ],
+                  ),
+                ),
 
-              // Boss Widget
-              BossWidget(boss: _boss),
+                const SizedBox(height: 8),
 
-              const Spacer(),
+                // Boss area
+                BossWidget(boss: _boss),
 
-              // Player hand above player
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Wrap(
+                const SizedBox(height: 16),
+
+                // ----- Middle row: 3 empty slots (UI only) -----
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      _EmptySlot(),
+                      SizedBox(width: 12),
+                      _EmptySlot(),
+                      SizedBox(width: 12),
+                      _EmptySlot(),
+                    ],
+                  ),
+                ),
+
+                const Spacer(),
+
+                // Player area (player + HP bar)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: PlayerWidget(player: _player),
+                ),
+
+                // Player hand (bottom)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Center(
+                    child: Wrap(
                       spacing: 12,
                       runSpacing: 12,
                       alignment: WrapAlignment.center,
@@ -100,42 +130,64 @@ class _CombatScreenState extends State<CombatScreen> {
                           .map((c) => CardWidget(card: c))
                           .toList(),
                     ),
-                    const SizedBox(height: 12),
-                    // Player Widget (HP + info)
-                    PlayerWidget(player: _player),
-                  ],
+                  ),
                 ),
-              ),
 
-              // Deck on right-center
-              Positioned(
-                right: 16,
-                top: MediaQuery.of(context).size.height / 2 - 50,
-                child: DeckWidget(
-                  deck: CardCubit.I.deck,
+                // (Optional) test button
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  child: OutlinedButton(
+                    onPressed: _onBossDefeated,
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.white),
+                    ),
+                    child: const Text('Defeat Boss (Test)'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ----- Deck on the right side (tap to draw) -----
+          SafeArea(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () {
                     setState(() => CardCubit.I.drawCards());
                   },
-                ),
-              ),
-
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8,
-                ),
-                child: OutlinedButton(
-                  onPressed: _onBossDefeated,
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.white),
+                  child: DeckWidget(
+                    deck: CardCubit.I.deck,
+                    onTap: null, // we handle tap via GestureDetector
                   ),
-                  child: const Text('Defeat Boss (Test)'),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
+      ),
+    );
+  }
+}
+
+/* ================= Helper UI ================= */
+
+class _EmptySlot extends StatelessWidget {
+  const _EmptySlot();
+
+  @override
+  Widget build(BuildContext context) {
+    // White card placeholder with black border (like your mock)
+    return Container(
+      width: 80,
+      height: 110,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.black, width: 3),
       ),
     );
   }
