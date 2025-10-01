@@ -38,9 +38,9 @@ class MedkitCard extends ConsumableCard {
   });
 
   void use(Player player) {
-    player.hp += healAmount;
-    if (player.hp > player.maxHp) {
-      player.hp = player.maxHp;
+    player.hp.value += healAmount;
+    if (player.hp.value > player.maxHp) {
+      player.hp.value = player.maxHp;
     }
   }
 }
