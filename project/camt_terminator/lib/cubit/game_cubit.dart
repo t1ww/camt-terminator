@@ -16,12 +16,15 @@ class GameCubit {
   final ValueNotifier<Player?> playerNotifier = ValueNotifier(null);
   final ValueNotifier<Boss?> bossNotifier = ValueNotifier(null);
 
-  // Player an boss with notifier
+  // Player an boss with notifier for value change
   Player get player => playerNotifier.value!;
   Boss get boss => bossNotifier.value!;
 
   set player(Player p) => playerNotifier.value = p;
   set boss(Boss b) => bossNotifier.value = b;
+
+  // Bosskill for round counting
+  final ValueNotifier<int> bossKillsNotifier = ValueNotifier(0);
   
   // Game state
   GamePhase _phase = GamePhase.idle;
@@ -29,13 +32,7 @@ class GameCubit {
 
   // Boss tracking
   final List<Boss> _bossPool = [...allBosses]; // copy
-  int _bossKills = 0;
   static const int maxBossKills = 4;
-
-  // Get round, count from bossKill
-  int getRound() {
-    return _bossKills + 1;
-  }
 
   // ==== Volume state ====
   double _userVolume = 0.35; // 35% base default
@@ -57,7 +54,7 @@ class GameCubit {
   /// Start combat with a new player and first boss
   Future<void> startCombat({Player? initPlayer}) async {
     _phase = GamePhase.bossSummoned;
-    _bossKills = 0;
+    bossKillsNotifier.value = 0;
 
     // Shuffle boss pool
     _bossPool.shuffle();
@@ -83,9 +80,9 @@ class GameCubit {
   /// Called when current boss is defeated
   /// Returns true if game continues, false if game ends
   bool onBossDefeated(BuildContext context) {
-    _bossKills++;
+    bossKillsNotifier.value++;
 
-    if (_bossKills >= maxBossKills || _bossPool.isEmpty) {
+    if (bossKillsNotifier.value >= maxBossKills || _bossPool.isEmpty) {
       _phase = GamePhase.ended;
 
       // stop music on game end
@@ -156,7 +153,7 @@ class GameCubit {
   void reset() {
     _stopMusic();
     _phase = GamePhase.idle;
-    _bossKills = 0;
+    bossKillsNotifier.value = 0;
     _bossPool
       ..clear()
       ..addAll(allBosses);

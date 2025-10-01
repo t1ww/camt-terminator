@@ -72,12 +72,17 @@ class _CombatScreenState extends State<CombatScreen> {
                         ),
                       ),
                       const Spacer(),
-                      Text(
-                        'Round: ${GameCubit.I.getRound()} / 4',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
+                      ValueListenableBuilder<int>(
+                        valueListenable: GameCubit.I.bossKillsNotifier,
+                        builder: (_, bossKills, __) {
+                          return Text(
+                            'Round: ${bossKills + 1} / 4',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -166,12 +171,13 @@ class _CombatScreenState extends State<CombatScreen> {
                   right: 0,
                   top: 300,
                 ), // add top to push deck down
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
+                child: DeckWidget(
+                  deck: CardCubit.I.deck,
                   onTap: () {
-                    setState(() => CardCubit.I.drawCards());
+                    CardCubit.I.drawCards();
+                    // update ui
+                    setState(() {});
                   },
-                  child: DeckWidget(deck: CardCubit.I.deck, onTap: null),
                 ),
               ),
             ),
