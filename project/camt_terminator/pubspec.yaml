@@ -10,6 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  just_audio: ^0.9.40
+  audio_session: ^0.1.19
 
 dev_dependencies:
   flutter_test:
@@ -34,3 +36,8 @@ flutter:
     - assets/images/boss3.png
     - assets/images/boss4.png
     - assets/images/combat_background.png
+
+    - assets/song/Con_theme.mp3
+    - assets/song/Party_theme.mp3
+    - assets/song/Plub_theme.mp3
+    - assets/song/Tew_theme.mp3
