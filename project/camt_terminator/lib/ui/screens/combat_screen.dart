@@ -149,18 +149,21 @@ class _CombatScreenState extends State<CombatScreen> {
 
                 const SizedBox(height: 16),
 
-                // ----- Middle row: 3 empty slots (UI only) -----
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      FoldedCardWidget(),
-                      SizedBox(width: 12),
-                      FoldedCardWidget(),
-                      SizedBox(width: 12),
-                      FoldedCardWidget(),
-                    ],
-                  ),
+                // ----- Boss's playing card -----
+                ValueListenableBuilder<List<Card>>(
+                  valueListenable: CardCubit.I.bossPlayedNotifier,
+                  builder: (context, bossCards, _) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(3, (index) {
+                        if (index < bossCards.length) {
+                          return CardWidget(card: bossCards[index]);
+                        } else {
+                          return const FoldedCardWidget();
+                        }
+                      }),
+                    );
+                  },
                 ),
 
                 const Spacer(),

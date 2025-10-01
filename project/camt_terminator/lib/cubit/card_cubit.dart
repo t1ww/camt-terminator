@@ -1,5 +1,4 @@
 // lib/cubit/card_cubit.dart
-import 'package:camt_terminator/cubit/game_cubit.dart';
 import 'package:camt_terminator/models/card_model.dart';
 import 'package:camt_terminator/models/deck_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
@@ -32,6 +31,9 @@ class CardCubit {
 
   /// Tracks current turn number
   final ValueNotifier<int> turnNotifier = ValueNotifier(1);
+
+  // Track boss cards being played
+  final ValueNotifier<List<Card>> bossPlayedNotifier = ValueNotifier([]);
 
   // ===== Internal State =====
   late Deck deck;
@@ -91,23 +93,32 @@ class CardCubit {
   }
 
   /// Play selected cards against boss and clear selection
-  void playSelectedCards({required Player player, required Boss boss}) {
+  Future<void> playSelectedCards({
+    required Player player,
+    required Boss boss,
+  }) async {
     final selected = [...selectedCardsNotifier.value];
 
-    // Boss plays cards
-    final bossPlayedCards = boss.playCards();
+    // Boss draws first
+    boss.drawCards();
+
+    // Boss plays cards (remove from hand, prepare for UI)
+    final bossCards = boss.playCards();
+    bossPlayedNotifier.value = bossCards;
+
+    // Wait 1–2 seconds for animation/preview
+    await Future.delayed(const Duration(seconds: 1));
 
     // Resolve combat round
     CombatResolver.resolveRound(
       playerCards: selected,
-      bossCards: bossPlayedCards,
+      bossCards: bossCards,
       player: player,
       boss: boss,
     );
 
     // Move played cards to discard pile
     deck.discard(selected);
-    deck.discard(bossPlayedCards);
 
     // Remove played cards from hand
     final updatedHand = handNotifier.value
@@ -118,8 +129,8 @@ class CardCubit {
     // Clear selected cards
     selectedCardsNotifier.value = [];
 
-    // Draw new hand for boss
-    GameCubit.I.boss.drawCards();
+    // Clear boss preview after combat
+    bossPlayedNotifier.value = [];
 
     // Update deck for UI
     deckNotifier.value = deck;
