@@ -107,37 +107,36 @@ class _CombatScreenState extends State<CombatScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
-                      _EmptySlot(isBoss: true),
+                      FoldedCardWidget(),
                       SizedBox(width: 12),
-                      _EmptySlot(isBoss: true),
+                      FoldedCardWidget(),
                       SizedBox(width: 12),
-                      _EmptySlot(isBoss: true),
+                      FoldedCardWidget(),
                     ],
                   ),
                 ),
 
                 const Spacer(),
-
-                // Player area (player + HP bar)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: PlayerWidget(player: _player),
-                ),
                 // ----- Middle row: 3 empty slots (UI only) -----
                 Padding(
-                  padding: const EdgeInsets.only(top: 40), // push down
+                  padding: const EdgeInsets.only(bottom: 0),
                   child: Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
-                        _EmptySlot(), // default false → cardEmpty.png
+                        EmptyCardWidget(),
                         SizedBox(width: 12),
-                        _EmptySlot(),
+                        EmptyCardWidget(),
                         SizedBox(width: 12),
-                        _EmptySlot(),
+                        EmptyCardWidget(),
                       ],
                     ),
                   ),
+                ),
+                // Player character area (+ HP bar)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: PlayerWidget(player: _player),
                 ),
 
                 // Player hand (bottom)
@@ -177,7 +176,7 @@ class _CombatScreenState extends State<CombatScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(
                   right: 12,
-                  top: 100,
+                  top: 360,
                 ), // add top to push deck down
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
@@ -190,25 +189,6 @@ class _CombatScreenState extends State<CombatScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/* ================= Helper UI ================= */
-
-class _EmptySlot extends StatelessWidget {
-  final bool isBoss; // true for boss side slot, false for player side slot
-  const _EmptySlot({this.isBoss = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 80,
-      height: 110,
-      child: Image.asset(
-        isBoss ? 'assets/images/deck.png' : 'assets/images/cardEmpty.png',
-        fit: BoxFit.contain,
       ),
     );
   }

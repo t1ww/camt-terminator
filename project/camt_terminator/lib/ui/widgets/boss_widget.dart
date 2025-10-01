@@ -21,7 +21,7 @@ class BossWidget extends StatelessWidget {
 
     return Column(
       children: [
-        Image.asset(asset, width: 80, height: 80),
+        Image.asset(asset, width: 96, height: 96),
         const SizedBox(height: 4),
         HPBarWidget(current: boss.hp, max: boss.maxHp),
       ],

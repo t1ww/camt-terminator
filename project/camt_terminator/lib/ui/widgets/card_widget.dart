@@ -5,8 +5,8 @@ import 'package:camt_terminator/models/card_model.dart';
 class CardWidget extends StatelessWidget {
   final Card card;
   const CardWidget({super.key, required this.card});
-  final double cardWidth = 90.0;
-  final double cardHeight = 160.0;
+  final double cardWidth = 72.0;
+  final double cardHeight = 128.0;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +33,56 @@ class CardWidget extends StatelessWidget {
           Image.asset(cardAsset, fit: BoxFit.cover),
           // Item sprite on top
           Image.asset(itemAsset, fit: BoxFit.cover),
+        ],
+      ),
+    );
+  }
+}
+
+class FoldedCardWidget extends StatelessWidget {
+  const FoldedCardWidget({super.key});
+  final double cardWidth = 72.0;
+  final double cardHeight = 128.0;
+
+  @override
+  Widget build(BuildContext context) {
+    String cardAsset = 'assets/images/deck.png';
+    return Container(
+      width: cardWidth,
+      height: cardHeight,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white24, width: 1.5),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(cardAsset, fit: BoxFit.cover),
+        ],
+      ),
+    );
+  }
+}
+
+class EmptyCardWidget extends StatelessWidget {
+  const EmptyCardWidget({super.key});
+  final double cardWidth = 72.0;
+  final double cardHeight = 128.0;
+
+  @override
+  Widget build(BuildContext context) {
+    String cardAsset = 'assets/images/cardEmpty.png';
+    return Container(
+      width: cardWidth,
+      height: cardHeight,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white24, width: 1.5),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(cardAsset, fit: BoxFit.cover),
         ],
       ),
     );

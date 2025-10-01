@@ -7,8 +7,8 @@ class DeckWidget extends StatelessWidget {
   final VoidCallback? onTap; // <-- callback when deck is tapped
   const DeckWidget({super.key, required this.deck, this.onTap});
 
-  final double deckWidth = 90.0;
-  final double deckHeight = 160.0;
+  final double deckWidth = 72.0;
+  final double deckHeight = 128.0;
   final String deckAsset = 'assets/images/deck.png';
 
   @override

@@ -9,9 +9,9 @@ class PlayerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Column(  
       children: [
-        Image.asset('assets/images/player.png', width: 64, height: 64),
+        Image.asset('assets/images/player.png', width: 96, height: 96),
         const SizedBox(height: 4),
         HPBarWidget(current: player.hp.toInt(), max: player.maxHp.toInt()),
       ],
