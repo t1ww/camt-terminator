@@ -6,7 +6,7 @@ import 'package:audio_session/audio_session.dart';
 import '../models/player_model.dart';
 import '../models/boss_model.dart';
 import '../data/boss_data.dart';
-import '../ui/screens/gameover_screen.dart';
+import '../ui/screens/victory_screen.dart';
 
 class GameCubit {
   // Singleton pattern
@@ -81,22 +81,23 @@ class GameCubit {
   /// Called when current boss is defeated
   /// Returns true if game continues, false if game ends
   bool onBossDefeated() {
+    // ✅ Increment AFTER finishing current boss
     bossKillsNotifier.value++;
 
+    // ✅ Win condition
     if (bossKillsNotifier.value >= maxBossKills || _bossPool.isEmpty) {
       _phase = GamePhase.ended;
       _stopMusic();
 
-      // instead of using context directly:
       WidgetsBinding.instance.addPostFrameCallback((_) {
         navigatorKey.currentState?.pushReplacement(
-          MaterialPageRoute(builder: (_) => const GameoverScreen()),
+          MaterialPageRoute(builder: (_) => const VictoryScreen()),
         );
       });
-
       return false;
     }
 
+    // spawn next boss and music
     boss = _popNextBoss();
     _phase = GamePhase.bossSummoned;
     _playTrackForBoss(boss);

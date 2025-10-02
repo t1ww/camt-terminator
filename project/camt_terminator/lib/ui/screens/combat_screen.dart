@@ -12,6 +12,8 @@ import '../widgets/player_widget.dart';
 import '../widgets/boss_widget.dart';
 import '../widgets/deck_widget.dart';
 
+import 'victory_screen.dart';
+
 class CombatScreen extends StatefulWidget {
   const CombatScreen({super.key});
 
@@ -23,14 +25,16 @@ class _CombatScreenState extends State<CombatScreen> {
   @override
   void initState() {
     super.initState();
-    GameCubit.I.startCombat();
+    GameCubit.I.reset();
     CardCubit.I.reset();
+
+    GameCubit.I.startCombat();
     GameCubit.I.boss.drawCards();
   }
 
   @override
   void dispose() {
-    GameCubit.I.reset();
+    GameCubit.I.reset(); // ensure cleanup when leaving
     super.dispose();
   }
 
@@ -51,7 +55,6 @@ class _CombatScreenState extends State<CombatScreen> {
             ),
           ),
 
-          // Main column content
           SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -63,10 +66,12 @@ class _CombatScreenState extends State<CombatScreen> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: () {
+                          GameCubit.I.reset();
+                          Navigator.of(context).pop();
+                        },
                       ),
                       const SizedBox(width: 4),
-                      // Turn count (reactive)
                       ValueListenableBuilder<int>(
                         valueListenable: CardCubit.I.turnNotifier,
                         builder: (_, int turn, __) {
@@ -80,7 +85,6 @@ class _CombatScreenState extends State<CombatScreen> {
                         },
                       ),
                       const Spacer(),
-                      // Round info
                       ValueListenableBuilder<int>(
                         valueListenable: GameCubit.I.bossKillsNotifier,
                         builder: (_, int bossKills, __) {
@@ -93,11 +97,26 @@ class _CombatScreenState extends State<CombatScreen> {
                           );
                         },
                       ),
+                      const SizedBox(width: 8),
+                      OutlinedButton(
+                        onPressed: () {
+                          GameCubit.I.reset();
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (_) => const VictoryScreen(),
+                            ),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Colors.greenAccent),
+                        ),
+                        child: const Text('Test Victory'),
+                      ),
                     ],
                   ),
                 ),
 
-                /// Boss area (reactive & clickable)
+                /// Boss area
                 ValueListenableBuilder<List<Card>>(
                   valueListenable: CardCubit.I.selectedCardsNotifier,
                   builder: (context, selected, __) {
@@ -125,7 +144,7 @@ class _CombatScreenState extends State<CombatScreen> {
                               if (isReadyToAttack)
                                 Positioned.fill(
                                   child: Container(
-                                    color: Colors.red.withValues(alpha: 0.5),
+                                    color: Colors.red.withOpacity(0.5),
                                     alignment: Alignment.center,
                                     child: const Text(
                                       'Attack',
@@ -147,7 +166,7 @@ class _CombatScreenState extends State<CombatScreen> {
 
                 const SizedBox(height: 16),
 
-                // ----- Boss's playing card -----
+                // Boss's playing card
                 ValueListenableBuilder<List<Card>>(
                   valueListenable: CardCubit.I.bossPlayedNotifier,
                   builder: (context, bossCards, _) {
@@ -166,7 +185,7 @@ class _CombatScreenState extends State<CombatScreen> {
 
                 const Spacer(),
 
-                // ----- Selected cards -----
+                // Selected cards
                 Padding(
                   padding: const EdgeInsets.only(bottom: 0),
                   child: Center(
@@ -188,7 +207,6 @@ class _CombatScreenState extends State<CombatScreen> {
                   ),
                 ),
 
-                // Player character area (+ HP bar)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: ValueListenableBuilder<Player?>(
@@ -200,7 +218,6 @@ class _CombatScreenState extends State<CombatScreen> {
                   ),
                 ),
 
-                // ----- Player hand ----- (reactive)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Center(
@@ -218,7 +235,6 @@ class _CombatScreenState extends State<CombatScreen> {
                                 if (index < hand.length) {
                                   final card = hand[index];
                                   final isSelected = selected.contains(card);
-
                                   return GestureDetector(
                                     onTap: () {
                                       CardCubit.I.toggleCardSelection(card);
@@ -229,11 +245,8 @@ class _CombatScreenState extends State<CombatScreen> {
                                         if (isSelected)
                                           Positioned.fill(
                                             child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.yellow.withValues(
-                                                  alpha: 0.3,
-                                                ),
-                                              ),
+                                              color:
+                                                  Colors.yellow.withOpacity(0.3),
                                             ),
                                           ),
                                       ],
@@ -254,22 +267,17 @@ class _CombatScreenState extends State<CombatScreen> {
             ),
           ),
 
-          // ----- Deck on the right side (tap to draw) -----
           SafeArea(
             child: Align(
               alignment: Alignment.centerRight,
               child: Padding(
-                padding: const EdgeInsets.only(
-                  right: 0,
-                  top: 300,
-                ), // Add top to push deck down
+                padding: const EdgeInsets.only(right: 0, top: 300),
                 child: ValueListenableBuilder<Deck>(
                   valueListenable: CardCubit.I.deckNotifier,
                   builder: (context, Deck deck, _) {
                     return DeckWidget(
                       deck: deck,
                       onTap: () {
-                        // Draw cards and notify UI automatically
                         CardCubit.I.drawCards();
                       },
                     );
