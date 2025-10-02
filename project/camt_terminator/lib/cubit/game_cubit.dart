@@ -1,4 +1,5 @@
 // lib/cubit/game_cubit.dart
+import 'package:camt_terminator/main.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
@@ -25,7 +26,7 @@ class GameCubit {
 
   // Bosskill for round counting
   final ValueNotifier<int> bossKillsNotifier = ValueNotifier(0);
-  
+
   // Game state
   GamePhase _phase = GamePhase.idle;
   GamePhase get phase => _phase;
@@ -79,30 +80,38 @@ class GameCubit {
 
   /// Called when current boss is defeated
   /// Returns true if game continues, false if game ends
-  bool onBossDefeated(BuildContext context) {
+  bool onBossDefeated() {
     bossKillsNotifier.value++;
 
     if (bossKillsNotifier.value >= maxBossKills || _bossPool.isEmpty) {
       _phase = GamePhase.ended;
-
-      // stop music on game end
       _stopMusic();
 
-      // Navigate to GameOver screen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const GameoverScreen()),
-      );
+      // instead of using context directly:
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        navigatorKey.currentState?.pushReplacement(
+          MaterialPageRoute(builder: (_) => const GameoverScreen()),
+        );
+      });
+
       return false;
     }
 
-    // Spawn next boss
     boss = _popNextBoss();
     _phase = GamePhase.bossSummoned;
-
-    // swap to the new boss track
-    _playTrackForBoss(boss); // fire-and-forget
+    _playTrackForBoss(boss);
 
     return true;
+  }
+
+  // When lose
+  void onPlayerDefeated() {
+    _phase = GamePhase.ended;
+    _stopMusic();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      navigatorKey.currentState?.pushReplacementNamed('/gameover');
+    });
   }
 
   /// Get next boss from shuffled pool

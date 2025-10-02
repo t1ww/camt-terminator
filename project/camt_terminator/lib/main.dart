@@ -74,7 +74,7 @@ class CAMTTerminatorApp extends StatelessWidget {
                   onDefeatBoss: () {
                     final ctx = navigatorKey.currentContext;
                     if (ctx != null) {
-                      final continued = GameCubit.I.onBossDefeated(ctx);
+                      final continued = GameCubit.I.onBossDefeated();
                       if (!continued) return;
                       // If you're inside CombatScreen, you might want to trigger UI rebuild
                       // Use this only if needed

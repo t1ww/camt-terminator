@@ -1,6 +1,7 @@
 // project\camt_terminator\lib\models\boss_model.dart
 import 'dart:math';
 
+import 'package:camt_terminator/cubit/game_cubit.dart';
 import 'package:camt_terminator/models/card_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
 import 'package:camt_terminator/cubit/card_cubit.dart';
@@ -67,12 +68,20 @@ abstract class Boss {
   void useAbility(Player player);
 
   void takeDamage(int damage) {
-    hp.value = max(hp.value - damage, 0);
-    damageEvents.value = [...damageEvents.value, damage];
+    // Set hp
+    final newHp = (hp.value - damage).clamp(0, maxHp);
+    hp.value = newHp;
 
+    // Set damage events
+    damageEvents.value = [...damageEvents.value, damage];
     Future.delayed(const Duration(milliseconds: 800), () {
       clearDamageEvents();
     });
+
+    // === Check defeat ===
+    if (newHp <= 0) {
+      GameCubit.I.onBossDefeated();
+    }
   }
 
   void clearDamageEvents() {
