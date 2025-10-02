@@ -76,8 +76,14 @@ class PartyBoss extends Boss {
   }
 }
 
-
 final allBosses = [
+  PlubBoss(),
+  ConfirmBoss(),
+  TewBoss(),
+  PartyBoss(),
+];
+
+List<Boss> freshBosses() => [
   PlubBoss(),
   ConfirmBoss(),
   TewBoss(),

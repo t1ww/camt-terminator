@@ -32,7 +32,7 @@ class GameCubit {
   GamePhase get phase => _phase;
 
   // Boss tracking
-  final List<Boss> _bossPool = [...allBosses]; // copy
+  final List<Boss> _bossPool = [...freshBosses()];
   static const int maxBossKills = 4;
 
   // ==== Volume state ====
@@ -163,18 +163,19 @@ class GameCubit {
 
   /// Reset everything to initial state
   void reset() {
-    _stopMusic();
-    _phase = GamePhase.idle;
-    bossKillsNotifier.value = 0;
+  _stopMusic();
+  _phase = GamePhase.idle;
+  bossKillsNotifier.value = 0;
 
-    _bossPool
-      ..clear()
-      ..addAll(allBosses);
-    _bossPool.shuffle();
-    player = Player();
+  _bossPool
+    ..clear()
+    ..addAll(freshBosses());
+  _bossPool.shuffle();
 
-    _musicReady = false; // keep this so music re-inits on next start
-  }
+  player = Player();
+  _musicReady = false; 
+}
+
 
   // Helper: choose special volume if set
   double _volumeForBoss(String bossId) {
