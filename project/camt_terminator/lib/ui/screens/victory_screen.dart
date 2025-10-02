@@ -50,14 +50,15 @@ class VictoryScreen extends StatelessWidget {
                     ),
                     OutlinedButton(
                       onPressed: () {
-                        // Restart a new combat run
-                        GameCubit.I.reset(); // fully reset state
-                        Navigator.of(context).pushReplacement(
+                        GameCubit.I.reset();
+                        Navigator.pushReplacement(
+                          context,
                           MaterialPageRoute(
                             builder: (_) => const CombatScreen(),
                           ),
                         );
                       },
+
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.white),
                       ),

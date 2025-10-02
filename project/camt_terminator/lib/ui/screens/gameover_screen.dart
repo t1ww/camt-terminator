@@ -48,7 +48,8 @@ class GameoverScreen extends StatelessWidget {
                       ElevatedButton(
                         onPressed: () {
                           // Restart the fight
-                          Navigator.of(context).pushReplacement(
+                          Navigator.pushReplacement(
+                            context,
                             MaterialPageRoute(
                               builder: (_) => const CombatScreen(),
                             ),

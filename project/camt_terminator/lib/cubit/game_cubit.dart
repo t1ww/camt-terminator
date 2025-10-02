@@ -66,6 +66,8 @@ class GameCubit {
     // Pick first boss synchronously
     boss = _popNextBoss();
 
+    await _ensureMusic();
+
     final path = _trackByBossId[boss.id];
     if (path != null) {
       _music.setLoopMode(LoopMode.one);
@@ -164,11 +166,14 @@ class GameCubit {
     _stopMusic();
     _phase = GamePhase.idle;
     bossKillsNotifier.value = 0;
+
     _bossPool
       ..clear()
       ..addAll(allBosses);
     _bossPool.shuffle();
     player = Player();
+
+    _musicReady = false; // keep this so music re-inits on next start
   }
 
   // Helper: choose special volume if set
