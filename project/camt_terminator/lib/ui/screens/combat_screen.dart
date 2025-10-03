@@ -12,8 +12,6 @@ import '../widgets/player_widget.dart';
 import '../widgets/boss_widget.dart';
 import '../widgets/deck_widget.dart';
 
-import 'victory_screen.dart';
-
 class CombatScreen extends StatefulWidget {
   const CombatScreen({super.key});
 
@@ -96,21 +94,6 @@ class _CombatScreenState extends State<CombatScreen> {
                             ),
                           );
                         },
-                      ),
-                      const SizedBox(width: 8),
-                      OutlinedButton(
-                        onPressed: () {
-                          GameCubit.I.reset();
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (_) => const VictoryScreen(),
-                            ),
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.greenAccent),
-                        ),
-                        child: const Text('Test Victory'),
                       ),
                     ],
                   ),

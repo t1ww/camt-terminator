@@ -36,6 +36,7 @@ class DevPanel extends StatelessWidget {
             },
             child: const Text("Damage Player 10"),
           ),
+          const SizedBox(height: 8),
         ],
       ),
     );
