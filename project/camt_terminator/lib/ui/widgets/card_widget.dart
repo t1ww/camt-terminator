@@ -10,9 +10,9 @@ class CardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String itemAsset = '', cardAsset = 'assets/images/cardEmpty.png';
-    if (card.power != null) {
-      cardAsset = 'assets/images/card${card.power}.png';
+    String itemAsset = '', cardAsset = 'assets/images/card${card.power}.png';
+    if (card is MedkitCard || card is ShotgunCard) {
+      cardAsset = 'assets/images/cardEmpty.png';
     }
     if (card is AttackCard) itemAsset = 'assets/images/knife.png';
     if (card is DefenseCard) itemAsset = 'assets/images/shield.png';
@@ -56,9 +56,7 @@ class FoldedCardWidget extends StatelessWidget {
       ),
       child: Stack(
         fit: StackFit.expand,
-        children: [
-          Image.asset(cardAsset, fit: BoxFit.cover),
-        ],
+        children: [Image.asset(cardAsset, fit: BoxFit.cover)],
       ),
     );
   }
@@ -81,9 +79,7 @@ class EmptyCardWidget extends StatelessWidget {
       ),
       child: Stack(
         fit: StackFit.expand,
-        children: [
-          Image.asset(cardAsset, fit: BoxFit.cover),
-        ],
+        children: [Image.asset(cardAsset, fit: BoxFit.cover)],
       ),
     );
   }

@@ -30,7 +30,7 @@ class ConsumableCard extends Card {
 }
 
 class MedkitCard extends ConsumableCard {
-  final int healAmount = 5;
+  final int healAmount = 10;
 
   MedkitCard({
     required super.id,

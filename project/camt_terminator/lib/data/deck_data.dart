@@ -39,6 +39,12 @@ List<game.Card> buildCoreDeck() {
   addDef(2, 16);
   addDef(3, 12);
 
+  // --- Add Consumables ---
+  cards.addAll([
+    game.MedkitCard(id: 'MEDKIT_0', name: 'Medkit'),
+    game.ShotgunCard(id: 'SHOTGUN_0', name: 'Shotgun'),
+  ]);
+  
   return cards;
 }
 

@@ -63,7 +63,7 @@ class CardCubit {
     if (toDraw <= 0) return;
 
     var drawn = deck
-        .draw(toDraw, includeConsumables: false)
+        .draw(toDraw, includeConsumables: true)
         .where((c) => !exclude.contains(c))
         .toList();
 
@@ -71,7 +71,7 @@ class CardCubit {
     if (drawn.isEmpty && deck.discardPile.isNotEmpty) {
       deck.resetDeck();
       drawn = deck
-          .draw(toDraw, includeConsumables: false)
+          .draw(toDraw, includeConsumables: true)
           .where((c) => !exclude.contains(c))
           .toList();
     }
