@@ -36,7 +36,7 @@ class GameCubit {
   static const int maxBossKills = 4;
 
   // ==== Volume state ====
-  double _userVolume = 0.35; // 35% base default
+  double _userVolume = 0.30;
   bool _muted = false;
 
   double get volume => _userVolume;

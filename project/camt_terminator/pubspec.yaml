@@ -38,7 +38,8 @@ flutter:
     - assets/images/boss4.png
     - assets/images/combat_background.png
 
-    - assets/sound/Con_snap.mp3
+    - assets/sound/Con_snap_v2.mp3
+    - assets/sound/Con_snap_v3.mp3
     - assets/song/Con_theme.mp3
     - assets/song/Party_theme.mp3
     - assets/song/Plub_theme.mp3

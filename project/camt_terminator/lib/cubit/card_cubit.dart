@@ -147,11 +147,16 @@ class CardCubit {
         // Shuffle the whole selection
         selectedCards.shuffle();
       }
+
+      // Calls the sound effect
+      playSfx('assets/sound/Con_snap_v2.mp3');
+
+      // Wait for sound loading
+      await Future.delayed(const Duration(milliseconds: 200));
+
       // Update to notifier
       selectedCardsNotifier.value = selectedCards;
 
-      // Calls assets\sound\Con_snap.mp3 for the sound effect
-      playSfx('assets/sound/Con_snap.mp3');
       // Wait 1 seconds for player to notice swapping
       await Future.delayed(const Duration(seconds: 1));
     }
@@ -204,7 +209,7 @@ class CardCubit {
     turnNotifier.value = 1;
   }
 
-  Future<void> playSfx(String path, {double volume = 5.0}) async {
+  Future<void> playSfx(String path, {double volume = 1}) async {
     final player = AudioPlayer();
     try {
       await player.setAsset(path);
