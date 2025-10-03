@@ -37,9 +37,7 @@ abstract class Boss {
   // Base behavior
   void useAbility(Player player);
 
-  List<Card> _handlePlayCard() {
-    useAbility(GameCubit.I.player);
-
+  List<Card> handlePlayCard() {
     final rng = Random();
     final playCount = currentHand.length < maxPlayingCardsPerTurn
         ? currentHand.length
@@ -101,7 +99,7 @@ abstract class Boss {
   // Public
   // To be overwritten for each bosses
   List<Card> playCards() {
-    return _handlePlayCard();
+    return handlePlayCard();
   }
 
   void takeDamage(int damage) {

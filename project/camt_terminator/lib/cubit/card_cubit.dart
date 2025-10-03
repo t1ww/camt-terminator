@@ -1,4 +1,6 @@
 // lib/cubit/card_cubit.dart
+import 'dart:math';
+
 import 'package:camt_terminator/data/boss_data.dart';
 import 'package:camt_terminator/models/card_model.dart';
 import 'package:camt_terminator/models/deck_model.dart';
@@ -7,6 +9,8 @@ import 'package:camt_terminator/models/boss_model.dart';
 import 'package:flutter/material.dart' hide Card;
 import '../../data/deck_data.dart';
 import '../services/combat_resolver.dart';
+
+import 'package:just_audio/just_audio.dart';
 
 /// CardCubit manages combat state:
 /// - Deck, hand, discard
@@ -100,7 +104,7 @@ class CardCubit {
     required Player player,
     required Boss boss,
   }) async {
-    final selected = [...selectedCardsNotifier.value];
+    final selectedCards = [...selectedCardsNotifier.value];
 
     // Lock
     isResolvingNotifier.value = true;
@@ -110,26 +114,63 @@ class CardCubit {
 
     // Boss plays cards (remove from hand, prepare for UI)
     final bossCards = boss.playCards();
+
+    // Calls plub's ability (copy every 5 turns)
+    if (boss is PlubBoss) {
+      final copied = boss.useAbility(player);
+      bossCards.addAll(copied);
+    }
+
+    // Update to notifier
     bossPlayedNotifier.value = bossCards;
 
-    // Wait 1–2 seconds for animation/preview
+    // Wait 1 seconds for animation/preview
     await Future.delayed(const Duration(seconds: 1));
+
+    // Shuffle if Confirm boss
+    if (boss is ConfirmBoss) {
+      if (boss.hp.value > (boss.maxHp / 2)) {
+        // Swap a single random pair
+        if (selectedCards.length >= 2) {
+          final rng = Random();
+          final i = rng.nextInt(selectedCards.length);
+          int j;
+          do {
+            j = rng.nextInt(selectedCards.length);
+          } while (j == i); // ensure different index
+
+          final temp = selectedCards[i];
+          selectedCards[i] = selectedCards[j];
+          selectedCards[j] = temp;
+        }
+      } else {
+        // Shuffle the whole selection
+        selectedCards.shuffle();
+      }
+      // Update to notifier
+      selectedCardsNotifier.value = selectedCards;
+
+      // Calls assets\sound\Con_snap.mp3 for the sound effect
+      playSfx('assets/sound/Con_snap.mp3');
+      // Wait 1 seconds for player to notice swapping
+      await Future.delayed(const Duration(seconds: 1));
+    }
 
     // Resolve combat round
     CombatResolver.resolveRound(
-      playerCards: selected,
+      playerCards: selectedCards,
       bossCards: bossCards,
       player: player,
       boss: boss,
-      isTewBoss: (boss is TewBoss)
+      isTewBoss: (boss is TewBoss),
     );
 
     // Move played cards to discard pile
-    deck.discard(selected);
+    deck.discard(selectedCards);
 
     // Remove played cards from hand
     final updatedHand = handNotifier.value
-        .where((c) => !selected.contains(c))
+        .where((c) => !selectedCards.contains(c))
         .toList();
     handNotifier.value = updatedHand;
 
@@ -161,5 +202,19 @@ class CardCubit {
     handNotifier.value = [];
     selectedCardsNotifier.value = [];
     turnNotifier.value = 1;
+  }
+
+  Future<void> playSfx(String path, {double volume = 5.0}) async {
+    final player = AudioPlayer();
+    try {
+      await player.setAsset(path);
+      await player.setVolume(volume);
+      await player.play();
+      // Dispose after playing so it frees resources
+      player.dispose();
+    } catch (e) {
+      print('Error playing SFX: $e');
+      player.dispose();
+    }
   }
 }

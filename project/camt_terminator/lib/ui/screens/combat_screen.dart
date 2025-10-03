@@ -155,7 +155,7 @@ class _CombatScreenState extends State<CombatScreen> {
                   builder: (context, bossCards, _) {
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(3, (index) {
+                      children: List.generate(bossCards.length, (index) {
                         if (index < bossCards.length) {
                           return CardWidget(card: bossCards[index]);
                         } else {
