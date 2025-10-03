@@ -28,9 +28,9 @@
   - **Attack**: deals damage equal to its power
   - **Defense**: blocks damage equal to its power
 
-### 2. Additional / Consumable Cards (Player Only)
-- **Shotgun Card**: instantly deals 7 damage
-- **Med Kit Card**: restores 5 HP
+### 2. Additional / Consumable Cards (Player Only) -> first idea, deletes from deck when used, currently still goes into discard pile.
+- **Shotgun Card**: instantly deals 7 damage -> currently 5
+- **Med Kit Card**: restores 5 HP -> currently 10
 
 ### 3. Deck Composition (Total 80 Cards)
 - 38 Atk cards: 
@@ -42,7 +42,7 @@
   - x16 power 2  
   - x12 power 3
 - x1 Shotgun card
-- x3 Med Kit cards  
+- x3 Med Kit cards -> currently 1
 
 **Note:** Bosses cannot draw consumable cards.
 
