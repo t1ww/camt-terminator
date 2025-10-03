@@ -15,10 +15,9 @@ class CombatResolver {
     required List<Card> bossCards,
     required Player player,
     required Boss boss,
+    required bool isTewBoss,
   }) {
-    final maxLen = playerCards.length > bossCards.length
-        ? playerCards.length
-        : bossCards.length;
+    final maxLen = max(playerCards.length, bossCards.length);
 
     for (int i = 0; i < maxLen; i++) {
       final playerCard = i < playerCards.length ? playerCards[i] : null;
@@ -31,7 +30,9 @@ class CombatResolver {
           continue;
         } else {
           boss.takeDamage(playerCard.power);
+          // If Tew, attack twice
           player.takeDamage(bossCard.power);
+          if (isTewBoss) player.takeDamage(bossCard.power);
         }
       }
       // Player attack, boss defense
@@ -41,12 +42,18 @@ class CombatResolver {
       }
       // Boss attack, player defense
       else if (playerCard is DefenseCard && bossCard is AttackCard) {
-        final damage = max(bossCard.power - playerCard.power, 1);
+        var damage = max(bossCard.power - playerCard.power, 1);
         player.takeDamage(damage);
+        // If Tew, attack twice
+        if (isTewBoss) player.takeDamage(damage);
       }
-      // Has special card
+      // Specials or one-sided plays
       else {
-        if (bossCard is AttackCard) player.takeDamage(bossCard.power);
+        if (bossCard is AttackCard) {
+          player.takeDamage(bossCard.power);
+          // If Tew, attack twice
+          if (isTewBoss) player.takeDamage(bossCard.power);
+        }
         if (playerCard is AttackCard) boss.takeDamage(playerCard.power);
         if (playerCard != null) _resolveSpecial(playerCard, player, boss);
         if (bossCard != null) _resolveSpecial(bossCard, player, boss);

@@ -34,19 +34,12 @@ abstract class Boss {
     this.maxPlayingCardsPerTurn = 3,
   });
 
-  void drawCards({List<Card> exclude = const []}) {
-    final toDraw = maxHandsPerTurn - currentHand.length;
-    if (toDraw <= 0) return;
+  // Base behavior
+  void useAbility(Player player);
 
-    final drawn = CardCubit.I.deck
-        .draw(toDraw, includeConsumables: false)
-        .where((c) => !exclude.contains(c))
-        .toList();
+  List<Card> _handlePlayCard() {
+    useAbility(GameCubit.I.player);
 
-    currentHand.addAll(drawn);
-  }
-
-  List<Card> playCards() {
     final rng = Random();
     final playCount = currentHand.length < maxPlayingCardsPerTurn
         ? currentHand.length
@@ -65,9 +58,7 @@ abstract class Boss {
     return playedCards;
   }
 
-  void useAbility(Player player);
-
-  void takeDamage(int damage) {
+  void _handleTakeDamage(int damage) {
     // Set hp
     final newHp = (hp.value - damage).clamp(0, maxHp);
     hp.value = newHp;
@@ -82,6 +73,43 @@ abstract class Boss {
     if (newHp <= 0) {
       GameCubit.I.onBossDefeated();
     }
+  }
+
+  void _handleDrawCards({List<Card> exclude = const []}) {
+    final toDraw = maxHandsPerTurn - currentHand.length;
+    if (toDraw <= 0) return;
+
+    var drawn = CardCubit.I.deck
+        .draw(toDraw, includeConsumables: false)
+        .where((c) => !exclude.contains(c))
+        .toList();
+
+    // If nothing drawn but discard has cards → recycle deck
+    if (drawn.isEmpty && CardCubit.I.deck.discardPile.isNotEmpty) {
+      CardCubit.I.deck.resetDeck();
+      drawn = CardCubit.I.deck
+          .draw(toDraw, includeConsumables: false)
+          .where((c) => !exclude.contains(c))
+          .toList();
+    }
+
+    if (drawn.isEmpty) return;
+
+    currentHand.addAll(drawn);
+  }
+
+  // Public
+  // To be overwritten for each bosses
+  List<Card> playCards() {
+    return _handlePlayCard();
+  }
+
+  void takeDamage(int damage) {
+    _handleTakeDamage(damage);
+  }
+
+  void drawCards({List<Card> exclude = const []}) {
+    _handleDrawCards(exclude: exclude);
   }
 
   void clearDamageEvents() {

@@ -1,4 +1,5 @@
 // lib/cubit/card_cubit.dart
+import 'package:camt_terminator/data/boss_data.dart';
 import 'package:camt_terminator/models/card_model.dart';
 import 'package:camt_terminator/models/deck_model.dart';
 import 'package:camt_terminator/models/player_model.dart';
@@ -120,6 +121,7 @@ class CardCubit {
       bossCards: bossCards,
       player: player,
       boss: boss,
+      isTewBoss: (boss is TewBoss)
     );
 
     // Move played cards to discard pile
