@@ -155,13 +155,30 @@ class _CombatScreenState extends State<CombatScreen> {
                   builder: (context, bossCards, _) {
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(bossCards.length, (index) {
+                      children: List.generate(3, (index) {
                         if (index < bossCards.length) {
                           return CardWidget(card: bossCards[index]);
                         } else {
                           return const FoldedCardWidget();
                         }
                       }),
+                    );
+                  },
+                ),
+                // Boss's overflow cards (4th+)
+                ValueListenableBuilder<List<Card>>(
+                  valueListenable: CardCubit.I.bossPlayedNotifier,
+                  builder: (context, bossCards, _) {
+                    if (bossCards.length <= 3) return const SizedBox.shrink();
+
+                    final overflow = bossCards.sublist(
+                      3,
+                    ); // slice after first 3
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: overflow
+                          .map((c) => CardWidget(card: c))
+                          .toList(),
                     );
                   },
                 ),
@@ -228,8 +245,9 @@ class _CombatScreenState extends State<CombatScreen> {
                                         if (isSelected)
                                           Positioned.fill(
                                             child: Container(
-                                              color:
-                                                  Colors.yellow.withOpacity(0.3),
+                                              color: Colors.yellow.withOpacity(
+                                                0.3,
+                                              ),
                                             ),
                                           ),
                                       ],
