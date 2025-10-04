@@ -162,20 +162,19 @@ class GameCubit {
   }
 
   /// Reset everything to initial state
-  void reset() {
-  _stopMusic();
-  _phase = GamePhase.idle;
-  bossKillsNotifier.value = 0;
+  Future<void> reset() async {
+    _stopMusic();
+    _phase = GamePhase.idle;
+    bossKillsNotifier.value = 0;
 
-  _bossPool
-    ..clear()
-    ..addAll(freshBosses());
-  _bossPool.shuffle();
+    _bossPool
+      ..clear()
+      ..addAll(freshBosses());
+    _bossPool.shuffle();
 
-  player = Player();
-  _musicReady = false; 
-}
-
+    player = Player();
+    _musicReady = false;
+  }
 
   // Helper: choose special volume if set
   double _volumeForBoss(String bossId) {

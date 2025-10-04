@@ -23,10 +23,14 @@ class _CombatScreenState extends State<CombatScreen> {
   @override
   void initState() {
     super.initState();
-    GameCubit.I.reset();
-    CardCubit.I.reset();
+    _setup();
+  }
 
-    GameCubit.I.startCombat();
+  Future<void> _setup() async {
+    await GameCubit.I.reset();
+    await CardCubit.I.reset();
+
+    await GameCubit.I.startCombat();
     GameCubit.I.boss.drawCards();
   }
 

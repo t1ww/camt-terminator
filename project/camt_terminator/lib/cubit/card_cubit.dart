@@ -202,7 +202,7 @@ class CardCubit {
   }
 
   /// Fully reset all state
-  void reset() {
+  Future<void> reset() async {
     _resetDeck();
     handNotifier.value = [];
     selectedCardsNotifier.value = [];

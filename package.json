@@ -4,7 +4,8 @@
   "description": "- A solo rogue-like game played in vertical.\r - both player and boss will draw the cards from the deck, draw 5 for the first turn and 3 for the rest of the game.\r - then choose 3 card to be use in combat.",
   "main": "index.js",
   "scripts": {
-    "flutter": "cd ./project/camt_terminator && flutter run"
+    "flutter": "cd ./project/camt_terminator && flutter run",
+    "build": "cd ./project/camt_terminator && flutter build apk"
   },
   "repository": {
     "type": "git",
