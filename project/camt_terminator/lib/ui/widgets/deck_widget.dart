@@ -9,7 +9,7 @@ class DeckWidget extends StatelessWidget {
   const DeckWidget({super.key, required this.deck, this.onTap});
   void deckDraw() {
     // Calls draw card
-    CardCubit.I.drawCards();
+    CardCubit.I.playerDrawCards();
 
     // Update ui
     onTap?.call();

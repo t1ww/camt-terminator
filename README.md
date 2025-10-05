@@ -1,102 +1,123 @@
-# CAMT Terminator - New Features Documentation
+# CAMT Terminator – Sound Effect Integration (using just_audio)
 
-This document explains the **sound feature** added to CAMT Terminator using just_audio, and how to integrate it into the project.  
-It demonstrates a real example from the game: **playing boss music**.
+This document explains how to use the **just_audio** package to add sound effects in Flutter, using an in-game example from **CAMT Terminator**.
+You’ll first learn the **basics of using just_audio**, then see a **real example** from the Confirm Boss, and finally complete a **challenge** to practice it.
 
 ---
 
-## 1. Sound Effects (just_audio)
+## 1. Basic Usage of just_audio
 
-**Purpose:**
+`just_audio` is a Flutter package for playing short sounds or music tracks.
 
-* Play background music for bosses
-* Increase player immersion
+### 1.1 Installation
 
-**Library:** [just_audio](https://pub.dev/packages/just_audio)
-
-**Setup:**
-
-1. Install the package:
+Run this command:
 
 ```bash
 flutter pub add just_audio
-````
-
-2. Place audio files in `assets/song/`, e.g.:
-
-```
-assets/song/Plub_theme.mp3
-assets/song/Con_theme.mp3
-assets/song/Tew_theme.mp3
-assets/song/Party_theme.mp3
 ```
 
-3. Register assets in `pubspec.yaml`:
+### 1.2 Adding a Sound Asset
+
+Place your sound file inside your project’s `assets/` folder, for example:
+
+```
+assets/sound/example.mp3
+```
+
+Then register it in `pubspec.yaml`:
 
 ```yaml
 flutter:
   assets:
-    - assets/song/Plub_theme.mp3
-    - assets/song/Con_theme.mp3
-    - assets/song/Tew_theme.mp3
-    - assets/song/Party_theme.mp3
+    - assets/sound/example.mp3
 ```
 
----
+### 1.3 Playing a Sound
 
-## 2. Usage Example from Project
-
-In `lib/cubit/game_cubit.dart`, **boss music** is handled like this:
+A minimal example:
 
 ```dart
-final AudioPlayer _music = AudioPlayer();
+import 'package:just_audio/just_audio.dart';
 
-Future<void> _playTrackForBoss(Boss b) async {
-  final path = _trackByBossId[b.id];
-  if (path == null) return; // no track mapped
-
-  // fade out previous track
-  await _fadeTo(0.0, const Duration(milliseconds: 400));
-
-  // load and play new boss track
-  await _music.setAsset(path, preload: true);
-  _music.setLoopMode(LoopMode.one);
-  await _music.play();
-
-  // fade in to appropriate volume
-  await _fadeTo(_volumeForBoss(b.id), const Duration(milliseconds: 400));
+Future<void> playExampleSound() async {
+  final player = AudioPlayer();        // 1. Create the player
+  await player.setAsset('assets/sound/example.mp3'); // 2. Load the sound
+  await player.setVolume(1.0);         // 3. Set volume
+  await player.play();                 // 4. Play once
+  player.dispose();                    // 5. Dispose when done
 }
 ```
 
-*Boss tracks are mapped in `_trackByBossId`:*
+**Key idea:**
+Every sound effect needs a player → load → play → dispose.
+This pattern is used directly inside gameplay code.
+
+---
+
+## 2. Example – Confirm Boss Snap Sound
+
+This example plays a sound when the **Confirm Boss** uses its shuffle ability inside `lib/cubit/card_cubit.dart`.
 
 ```dart
-static const Map<String, String> _trackByBossId = {
-  'boss_plub': 'assets/song/Plub_theme.mp3',
-  'boss_confirm': 'assets/song/Con_theme.mp3',
-  'boss_tew': 'assets/song/Tew_theme.mp3',
-  'boss_party': 'assets/song/Party_theme.mp3',
-};
+// Confirm boss ability: Shuffle player cards
+if (boss is ConfirmBoss) {
+  if (boss.hp.value > (boss.maxHp / 2)) {
+    // Swap a single random pair
+    if (selectedCards.length >= 2) {
+      final rng = Random();
+      final i = rng.nextInt(selectedCards.length);
+      int j;
+      do {
+        j = rng.nextInt(selectedCards.length);
+      } while (j == i);
+      final temp = selectedCards[i];
+      selectedCards[i] = selectedCards[j];
+      selectedCards[j] = temp;
+    }
+  } else {
+    // Shuffle the whole selection
+    selectedCards.shuffle();
+  }
+
+  // --- Play the snap sound effect ---
+  final snapSoundPlayer = AudioPlayer();
+  try {
+    await snapSoundPlayer.setAsset('assets/sound/Con_snap_v2.mp3');
+    await snapSoundPlayer.setVolume(1.0);
+    await snapSoundPlayer.play();
+  } catch (e) {
+    print('Error playing SFX: $e');
+  } finally {
+    snapSoundPlayer.dispose(); // always free memory
+  }
+  // --- End of sound effect ---
+
+  await Future.delayed(const Duration(milliseconds: 200));
+  selectedCardsNotifier.value = selectedCards;
+  await Future.delayed(const Duration(seconds: 1));
+}
 ```
 
-*Volume is managed per boss with `_volumeForBoss()`.*
+### Explanation
+
+1. **Create** a new `AudioPlayer` instance
+2. **Load** the MP3 file from assets
+3. **Set volume** (1.0 = 100%)
+4. **Play** the sound once
+5. **Dispose** to release memory
 
 ---
 
-## 3. Challenge
+## 3. Challenge – Add a Draw Card Sound
 
-As an extra exercise, try **adding a draw card sound** using the same `_music` player pattern:
+Try applying the same logic to when player draw a card.
 
-* Place a `draw.mp3` in `assets/sounds/`
-* Map it in a helper like `_trackByAction`
-* Play it whenever a card is drawn, optionally with a small fade-in/out
-
-This encourages understanding **how to extend just_audio for multiple game events**.
+**Goal:**
+Find and insert a new "draw" sound effect.
+Play a short "draw" sound whenever the player draws new cards.
 
 ---
 
-## Notes / Tips
-
-* `_music` is reused for all boss tracks to save resources
-* `_fadeTo()` helps smooth transitions between tracks
-* You can adapt the same pattern to other game sounds (e.g., card draw, attack, heal)
+### Answer if you couldn't figure it out.
+📑[answer.md](md/answer.md)

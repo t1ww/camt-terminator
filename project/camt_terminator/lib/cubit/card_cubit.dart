@@ -57,7 +57,7 @@ class CardCubit {
 
   /// Draw cards until hand has 5
   /// Optional exclusion of certain cards
-  void drawCards({List<Card> exclude = const []}) {
+  void playerDrawCards({List<Card> exclude = const []}) {
     const maxHandSize = 5;
     final toDraw = maxHandSize - handNotifier.value.length;
     if (toDraw <= 0) return;
@@ -127,7 +127,7 @@ class CardCubit {
     // Wait 1 seconds for animation/preview
     await Future.delayed(const Duration(seconds: 1));
 
-    // Shuffle if Confirm boss
+    // Confirm boss ability: Shuffle player cards
     if (boss is ConfirmBoss) {
       if (boss.hp.value > (boss.maxHp / 2)) {
         // Swap a single random pair
@@ -137,8 +137,7 @@ class CardCubit {
           int j;
           do {
             j = rng.nextInt(selectedCards.length);
-          } while (j == i); // ensure different index
-
+          } while (j == i);
           final temp = selectedCards[i];
           selectedCards[i] = selectedCards[j];
           selectedCards[j] = temp;
@@ -148,17 +147,26 @@ class CardCubit {
         selectedCards.shuffle();
       }
 
-      // Calls the sound effect
-      playSfx('assets/sound/Con_snap_v2.mp3');
+      // --- Play the snap sound effect ---
+      final snapSoundPlayer = AudioPlayer();
+      try {
+        await snapSoundPlayer.setAsset(
+          'assets/sound/Con_snap_v2.mp3',
+        ); // load sound
+        await snapSoundPlayer.setVolume(1.0); // full volume
+        await snapSoundPlayer.play(); // play once
+      } catch (e) {
+        print('Error playing SFX: $e');
+      } finally {
+        snapSoundPlayer.dispose(); // free resources
+      }
+      // --- End of sound effect ---
 
-      // Wait for sound loading
-      await Future.delayed(const Duration(milliseconds: 200));
-
-      // Update to notifier
+      await Future.delayed(const Duration(milliseconds: 200)); // small sound delay
       selectedCardsNotifier.value = selectedCards;
-
-      // Wait 1 seconds for player to notice swapping
-      await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(
+        const Duration(seconds: 1),
+      ); // let player see shuffle
     }
 
     // Resolve combat round
@@ -207,19 +215,5 @@ class CardCubit {
     handNotifier.value = [];
     selectedCardsNotifier.value = [];
     turnNotifier.value = 1;
-  }
-
-  Future<void> playSfx(String path, {double volume = 1}) async {
-    final player = AudioPlayer();
-    try {
-      await player.setAsset(path);
-      await player.setVolume(volume);
-      await player.play();
-      // Dispose after playing so it frees resources
-      player.dispose();
-    } catch (e) {
-      print('Error playing SFX: $e');
-      player.dispose();
-    }
   }
 }

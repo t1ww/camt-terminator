@@ -283,7 +283,7 @@ class _CombatScreenState extends State<CombatScreen> {
                     return DeckWidget(
                       deck: deck,
                       onTap: () {
-                        CardCubit.I.drawCards();
+                        CardCubit.I.playerDrawCards();
                       },
                     );
                   },

@@ -1,76 +1,93 @@
-# Challenge Answer: Play Sound on Draw Card
+# CAMT Terminator – Challenge Answer: Draw Card Sound
 
-This demonstrates how to play a sound whenever a card is drawn from the deck in **CAMT Terminator**, using the existing `_music` player pattern in `GameCubit` (from `lib/cubit/game_cubit.dart`).
+This answer adds a short **sound effect** when the player draws new cards, using the same `just_audio` pattern explained in the tutorial.
 
 ---
 
-## 1. Add a Draw Sound Asset
+## 1. Add the Draw Sound Asset
 
-Place a draw card sound in your assets folder:
+Place a new sound file in your project folder:
 
 ```
-assets/song/draw_card.mp3
-````
+assets/sound/draw_card.mp3
+```
 
-Then register it in `pubspec.yaml`:
+Then register it in your `pubspec.yaml`:
 
 ```yaml
 flutter:
   assets:
-    - assets/song/draw_card.mp3
-````
+    - assets/sound/draw_card.mp3
+```
+
+This makes the file accessible for the `AudioPlayer` to load.
 
 ---
 
-## 2. Add a Helper Method in GameCubit
+## 2. Update `playerDrawCards()` in `lib/cubit/card_cubit.dart`
 
-You can reuse the same `_music` player or create a small one-off player.
-For simplicity, we’ll add a helper in `GameCubit`:
+Add the sound effect logic directly inside the draw function.
 
 ```dart
-extension GameCubitDrawSound on GameCubit {
-  Future<void> playDrawSound() async {
-    await _ensureMusic(); // make sure the player is ready
-    await _music.setAsset('assets/song/draw_card.mp3', preload: true);
-    _music.setLoopMode(LoopMode.off);
-    await _music.play();
+/// Draw cards until hand has 5
+/// Optional exclusion of certain cards
+Future<void> playerDrawCards({List<Card> exclude = const []}) async {
+  const maxHandSize = 5;
+  final toDraw = maxHandSize - handNotifier.value.length;
+  if (toDraw <= 0) return;
+
+  var drawn = deck
+      .draw(toDraw, includeConsumables: true)
+      .where((c) => !exclude.contains(c))
+      .toList();
+
+  // If deck is empty but discard has cards, recycle
+  if (drawn.isEmpty && deck.discardPile.isNotEmpty) {
+    deck.resetDeck();
+    drawn = deck
+        .draw(toDraw, includeConsumables: true)
+        .where((c) => !exclude.contains(c))
+        .toList();
   }
+
+  if (drawn.isEmpty) return;
+
+  // --- Play draw sound effect ---
+  final drawSoundPlayer = AudioPlayer();
+  try {
+    await drawSoundPlayer.setAsset('assets/sound/draw_card.mp3'); // load sound
+    await drawSoundPlayer.setVolume(0.8); // volume 80%
+    await drawSoundPlayer.play(); // play once
+  } catch (e) {
+    print('Error playing draw sound: $e');
+  } finally {
+    drawSoundPlayer.dispose(); // release memory
+  }
+  // --- End of sound effect ---
+
+  // Update hand
+  final updatedHand = [...handNotifier.value, ...drawn];
+  handNotifier.value = updatedHand;
+  selectedCardsNotifier.value = [];
+
+  // Reassign new Deck for UI update
+  deckNotifier.value = Deck(cards: [...deck.cards])
+    ..discardPile.addAll(deck.discardPile);
 }
 ```
 
-> Note: `_ensureMusic()` already exists in `GameCubit` to configure audio sessions and volume.
+---
+
+## 3. Result
+
+Now, each time the player draws cards:
+
+  <img src="draw_image.png" width="200">
+
+* The sound `draw_card.mp3` plays once
+* It doesn’t interrupt or delay gameplay
+* It gives immediate audio feedback when drawing cards
 
 ---
 
-## 3. Trigger Sound in DeckWidget
-
-Update your `DeckWidget`’s `deckDraw()` method to call the sound:
-
-```dart
-void deckDraw() {
-  onTap?.call(); // existing callback for drawing cards
-
-  // Play draw card sound
-  GameCubit.I.playDrawSound();
-}
-```
-
-Now, whenever the player taps the deck:
-
-* `onTap` still draws the card(s)
-* `playDrawSound()` plays the sound
-
----
-
-## 4. Result
-
-* Tap the deck → a card is drawn → the draw card sound plays
-* You can extend this pattern to other actions (attack, defense, consumables) by creating similar helper methods in `GameCubit`.
-
----
-
-## Notes
-
-* Using the **singleton GameCubit.I** allows easy access to the audio player anywhere in the UI
-* `_music.setLoopMode(LoopMode.off)` ensures one-shot sounds don’t loop accidentally
-* Preload the asset to avoid delays during gameplay
+This completes the challenge — you’ve added a **responsive sound effect** for the draw action using the `just_audio` package.
