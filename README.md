@@ -5,6 +5,8 @@ You’ll first learn the **basics of using just_audio**, then see a **real examp
 
 ### 📊 Presentation [Canva](https://www.canva.com/design/DAG06G9CIgw/P_2myofG458kQ0g-DLnxcw/view?utm_content=DAG06G9CIgw&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hc917daeb5e) link.
 
+### 📽️ Teaching [video (not yet)](https://www.youtube.com/) link.
+
 ---
 
 ## 1. Basic Usage of just_audio
