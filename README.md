@@ -114,8 +114,11 @@ if (boss is ConfirmBoss) {
 Try applying the same logic to when player draw a card.
 
 **Goal:**
-Find and insert a new "draw" sound effect.
+Find and insert a new "draw" sound effect.<br>
 Play a short "draw" sound whenever the player draws new cards.
+
+*Recommend: Use [Pixabay](https://pixabay.com/sound-effects/search/card) to find the sound asset, 
+and [mp3cut](https://mp3cut.net) to trim the mp3 sound.*
 
 ---
 
