@@ -3,6 +3,8 @@
 This document explains how to use the **just_audio** package to add sound effects in Flutter, using an in-game example from **CAMT Terminator**.
 You’ll first learn the **basics of using just_audio**, then see a **real example** from the Confirm Boss, and finally complete a **challenge** to practice it.
 
+### 📊 Presentation [Canva](https://www.canva.com/design/DAG06G9CIgw/P_2myofG458kQ0g-DLnxcw/view?utm_content=DAG06G9CIgw&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hc917daeb5e) link.
+
 ---
 
 ## 1. Basic Usage of just_audio
